@@ -1,5 +1,6 @@
 var AWS = require('aws-sdk');
 const { createHash } = require('crypto');
+const { brotliDecompress } = require('zlib');
 AWS.config.update({region:'us-east-1'});
 var db = new AWS.DynamoDB();
 
@@ -47,7 +48,7 @@ var addUser = function(login, password, firstname, lastname, email, affiliation,
 var addUserSearch = function(login, firstname, lastname, callback) {
     var params = {
         Item: {
-            'name_c': { S: firstname.charAt(0)},
+            'name_c': { S: firstname.charAt(0).toLowerCase()},
             'fullname': { S: firstname.toLowerCase() + " " + lastname.toLowerCase()},
             'login': { S: login}
         },
@@ -115,10 +116,33 @@ var existsUser = function(login, callback) {
     });
 }
 
+// Get user info
+var getUserInfo = function(login, callback) {
+    var params = {
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            }
+        },
+        TableName: 'user',
+        AttributesToGet: ['login', 'firstname', 'lastname', 'email', 'affiliation', 'birthday', 'interests']
+    };
+
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    });
+}
+
 var database = {
     add_user: addUser,
     exists_user: existsUser,
     verify_user: verifyUser,
+    get_user_info: getUserInfo,
 };
 
 module.exports = database;

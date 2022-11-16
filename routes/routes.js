@@ -23,7 +23,8 @@ var checkLogin = function(req, res) {
         } else {
             if (data) {
                 console.log("User " + login + " logged in.");
-                res.redirect('/wall')
+                req.session.login = login;
+                res.redirect('/homepage') 
             } else {
                 res.redirect('/?error=' + encodeURIComponent("invalid_login"));
             } 
@@ -56,9 +57,34 @@ var createAccount = function(req, res) {
             db.add_user(login, password, firstname, lastname, email, affiliation, birthday, ['default'], function() {
                 req.session.login = login;
                 console.log('User ' + login + ' logged in.');
-                res.redirect('/wall'); 
+                res.redirect('/homepage');
             });
         }
+    });
+}
+
+// For handling /profile
+var getMyProfile = function(req, res) {
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        res.redirect('/profile/' + req.session.login);
+    }
+}
+
+// Generates profile page
+var getProfile = function(req, res) {
+    var login = req.params.login;
+    db.get_user_info(login, function(data) {
+        var info = data.Items[0]
+        res.render('profile.ejs', {
+            login: info.login.S,
+            firstname: info.firstname.S,
+            lastname: info.lastname.S,
+            email: info.email.S,
+            affiliation: info.affiliation.S,
+            birthday: info.birthday.S
+        });
     });
 }
 
@@ -70,12 +96,23 @@ var getWall = function(req, res) {
     res.render('wall.ejs');
 }
 
+/**
+ * Routes for homepage
+ */
+
+var getHomepage = function(req, res) {
+    res.render('homepage.ejs');
+}
+
 var routes = {
     get_main: getMain,
     check_login: checkLogin,
     signup: signup,
     create_account: createAccount,
     get_wall: getWall,
+    get_homepage: getHomepage,
+    get_profile: getProfile,
+    get_my_profile: getMyProfile,
 };
 
 module.exports = routes;

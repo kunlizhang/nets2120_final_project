@@ -12,11 +12,18 @@ app.get('/', routes.get_main);
 app.post('/checklogin', routes.check_login);
 app.get('/signup', routes.signup);
 app.post('/createaccount', routes.create_account);
+app.get('/profile', routes.get_my_profile);
+app.get('/profile/:login', routes.get_profile);
 
 /**
  * Routes for wall
  */
 app.get('/wall', routes.get_wall);
+
+/**
+ * Routes for homepage
+ */
+app.get('/homepage', routes.get_homepage);
 
 app.listen(8080);
 console.log('Server running on port 8080.')
