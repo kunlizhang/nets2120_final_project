@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+	<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css'></link>
+	<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css'></link>
+	<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js'></script>
+	<meta name='viewport' content='width=device-width, initial-scale=1'></meta>
+</head>
+<body>
+	<!-- This is a simple example template with a form that has a single input field. 
+		   You'll need something similar for the login page -->
+  <div class="container">
+    <h1>Create an account</h1>
+    <form action="/createaccount" method="post" class="form-horizontal">
+	  <div class="form-group">
+	    <label for="username" class="col-sm-2 control-label">Username</label>
+	    <div class="col-sm-10">
+	      <input type="text" class="form-control" name="username" placeholder="New username" required>
+  	    </div>
+  	  </div>
+  	  <div class="form-group">
+	    <label for="password" class="col-sm-2 control-label">Password</label>
+	    <div class="col-sm-10">
+	      <input type="password" class="form-control" name="password" placeholder="New password" required>
+  	    </div>
+  	  </div>
+  	  <div class="form-group">
+  	    <label for="username" class="col-sm-2 control-label">Full Name</label>
+	    <div class="col-sm-10">
+	      <input type="text" class="form-control" name="fullname" placeholder="Full name" required>
+  	    </div>
+  	  </div>
+  	  <div class="form-group">
+  	    <div class="col-sm-offset-2 col-sm-10">
+          <input type="submit" class="btn btn-primary" value="Create account">		
+        </div>
+  	  </div>
+    </form>
+    <% if (error === 'Invalid_username') { %>
+    <div class="alert alert-danger" style='margin-top:15px'>
+      Username already taken, please try again!
+    </div>
+    <% } %>
+</body>
+</html>
