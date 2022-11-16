@@ -3,16 +3,16 @@ const { createHash } = require('crypto');
 AWS.config.update({region:'us-east-1'});
 var db = new AWS.DynamoDB();
 
-/*
-    Helper functions
+/**
+ * Helper functions
 */
 
 function hash(string) {
     return createHash('sha256').update(string).digest('hex');
 }
 
-/*
-    USER database functions
+/**
+ * USER database functions
 */
 
 // Adds a user to user and also add to user_search
