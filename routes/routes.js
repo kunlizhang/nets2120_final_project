@@ -88,6 +88,15 @@ var getProfile = function(req, res) {
     });
 }
 
+// Generates search page
+var searchUser = function(req, res) {
+    var keyword = req.body.keyword.toLowerCase();
+
+    db.search_user(keyword, function(data) {
+        res.render('searchUsers.ejs', {users: data.Items});
+    });
+}
+
 /**
  * Routes for wall
  */
@@ -113,6 +122,7 @@ var routes = {
     get_homepage: getHomepage,
     get_profile: getProfile,
     get_my_profile: getMyProfile,
+    search_user: searchUser,
 };
 
 module.exports = routes;

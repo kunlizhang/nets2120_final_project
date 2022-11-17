@@ -138,11 +138,38 @@ var getUserInfo = function(login, callback) {
     });
 }
 
+// Search users
+var searchUser = function(keyword, callback) {
+    var params = {
+        KeyConditions: {
+            name_c: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: keyword.charAt(0)} ]
+            },
+            fullname: {
+                ComparisonOperator: 'BEGINS_WITH',
+                AttributeValueList: [ { S: keyword } ]
+            }
+        },
+        TableName: 'user_search',
+        AttributesToGet: ['fullname', 'login']
+    };
+    
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    });
+}
+
 var database = {
     add_user: addUser,
     exists_user: existsUser,
     verify_user: verifyUser,
     get_user_info: getUserInfo,
+    search_user: searchUser,
 };
 
 module.exports = database;

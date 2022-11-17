@@ -14,6 +14,7 @@ app.get('/signup', routes.signup);
 app.post('/createaccount', routes.create_account);
 app.get('/profile', routes.get_my_profile);
 app.get('/profile/:login', routes.get_profile);
+app.post('/search', routes.search_user);
 
 /**
  * Routes for wall
