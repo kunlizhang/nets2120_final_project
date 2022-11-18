@@ -94,11 +94,17 @@ var getProfile = function(req, res) {
 
 // Generates search page
 var searchUser = function(req, res) {
-    var keyword = req.body.keyword.toLowerCase();
+    var keyword = req.params.keyword;
 
     db.search_user(keyword, function(data) {
         res.render('searchUsers.ejs', {users: data.Items});
     });
+}
+
+var searchUserRedirect = function(req, res) {
+    var keyword = req.body.keyword.toLowerCase();
+
+    res.redirect('/search/' + encodeURIComponent(keyword));
 }
 
 // Logout the user
@@ -132,6 +138,7 @@ var routes = {
     get_homepage: getHomepage,
     get_profile: getProfile,
     get_my_profile: getMyProfile,
+    search_user_redirect: searchUserRedirect,
     search_user: searchUser,
     logout_user: logoutUser,
 };

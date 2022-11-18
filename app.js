@@ -14,7 +14,8 @@ app.get('/signup', routes.signup);
 app.post('/createaccount', routes.create_account);
 app.get('/profile', routes.get_my_profile);
 app.get('/profile/:login', routes.get_profile);
-app.post('/search', routes.search_user);
+app.post('/search', routes.search_user_redirect);
+app.get('/search/:keyword', routes.search_user)
 app.get('/logout', routes.logout_user);
 
 /**
