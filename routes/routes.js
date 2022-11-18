@@ -83,6 +83,14 @@ var searchUserRedirect = function(req, res) {
     res.redirect('/search/' + encodeURIComponent(keyword));
 }
 
+var searchJSON = function(req, res) {
+    var keyword = req.body.keyword.toLowerCase();
+
+    db.search_user(keyword, function(data) {
+        res.send(data.Items);
+    })
+}
+
 // Logout the user
 var logoutUser = function(req, res) {
     req.session.login = "";
@@ -178,6 +186,7 @@ var routes = {
     get_friend_status: getFriendStatus,
     add_friend: addFriends,
     delete_friend: deleteFriends,
+    search_JSON: searchJSON,
 };
 
 module.exports = routes;

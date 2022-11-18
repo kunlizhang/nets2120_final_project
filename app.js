@@ -5,6 +5,8 @@ var app = express()
 app.use(session({secret: "mySecret"})); //Not sure if I am using sessions properly here?
 app.use(express.urlencoded());
 
+app.use(express.static(__dirname + '/public'));
+
 /**
  * Routes for user
  */
@@ -12,9 +14,15 @@ app.get('/', routes.get_main);
 app.post('/checklogin', routes.check_login);
 app.get('/signup', routes.signup);
 app.post('/createaccount', routes.create_account);
-app.post('/search', routes.search_user_redirect);
-app.get('/search/:keyword', routes.search_user)
 app.get('/logout', routes.logout_user);
+
+/** 
+ * Routes for search
+ */
+
+ app.post('/search', routes.search_user_redirect);
+ app.get('/search/:keyword', routes.search_user);
+ app.post('/searchJSON', routes.search_JSON);
 
 /**
  * Routes for profile
