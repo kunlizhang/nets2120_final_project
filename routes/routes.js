@@ -8,7 +8,11 @@ var db = require('../models/database.js');
 // Login page: the main page of the website
 var getMain = function(req, res) {
     var error = req.query.error ? req.query.error: "";
-    res.render('login.ejs', {error: error});
+    if (req.session.login) {
+        res.redirect('/homepage');
+    } else {
+        res.render('login.ejs', {error: error});
+    }
 }
 
 // Checks login is valid
@@ -97,6 +101,12 @@ var searchUser = function(req, res) {
     });
 }
 
+// Logout the user
+var logoutUser = function(req, res) {
+    req.session.login = "";
+    res.redirect('/');
+}
+
 /**
  * Routes for wall
  */
@@ -123,6 +133,7 @@ var routes = {
     get_profile: getProfile,
     get_my_profile: getMyProfile,
     search_user: searchUser,
+    logout_user: logoutUser,
 };
 
 module.exports = routes;
