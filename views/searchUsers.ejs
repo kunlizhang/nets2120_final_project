@@ -34,16 +34,15 @@
 		</h1>
 		<table class="table">
 			<tbody>
-				
+				<% for (user of users) {%>
+				<tr>
+					<td>
+						<%= user.fullname.S %>
+					</td>
+				</tr>
+				<% } %>
 			</tbody>
 		</table>
-		<ul>
-			<% for (user of users) {%>
-			<li>
-				<%= user.fullname.S %>
-			</li>
-			<% } %>
-		</ul>
 	</div>
     
 </body>
