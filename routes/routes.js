@@ -67,30 +67,6 @@ var createAccount = function(req, res) {
     });
 }
 
-// For handling /profile
-var getMyProfile = function(req, res) {
-    if (!req.session.login) {
-        res.redirect('/');
-    } else {
-        res.redirect('/profile/' + req.session.login);
-    }
-}
-
-// Generates profile page
-var getProfile = function(req, res) {
-    var login = req.params.login;
-    db.get_user_info(login, function(data) {
-        var info = data.Items[0]
-        res.render('profile.ejs', {
-            login: info.login.S,
-            firstname: info.firstname.S,
-            lastname: info.lastname.S,
-            email: info.email.S,
-            affiliation: info.affiliation.S,
-            birthday: info.birthday.S
-        });
-    });
-}
 
 // Generates search page
 var searchUser = function(req, res) {
@@ -111,6 +87,64 @@ var searchUserRedirect = function(req, res) {
 var logoutUser = function(req, res) {
     req.session.login = "";
     res.redirect('/');
+}
+
+/**
+ * Routes for profile
+ */
+
+// For handling /profile
+var getMyProfile = function(req, res) {
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        res.redirect('/profile/' + req.session.login);
+    }
+}
+
+// Generates profile page
+var getProfile = function(req, res) {
+    var login = req.params.login;
+    db.get_user_info(login, function(data) {
+        var info = data.Items[0]
+        res.render('profile.ejs', {
+            login: info.login.S,
+            firstname: info.firstname.S,
+            lastname: info.lastname.S,
+            email: info.email.S,
+            affiliation: info.affiliation.S,
+            birthday: info.birthday.S,
+            curr_user: req.session.login,
+        });
+    });
+}
+
+// Get friend status
+var getFriendStatus = function(req, res) {
+    var login1 = req.body.login1;
+    var login2 = req.body.login2;
+
+    db.verify_friends(login1, login2, function(data) {
+        if (data.Count > 0) {
+            res.send({friends: true});
+        } else {
+            res.send({friends: false});
+        }
+    })
+}
+
+var addFriends = function(req, res) {
+    var login1 = req.body.login1;
+    var login2 = req.body.login2; 
+
+    db.add_friend(login1, login2, function() {res.send()});
+}
+
+var deleteFriends = function(req, res) {
+    var login1 = req.body.login1;
+    var login2 = req.body.login2;
+
+    db.delete_friend(login1, login2, function() {res.send()});
 }
 
 /**
@@ -141,6 +175,9 @@ var routes = {
     search_user_redirect: searchUserRedirect,
     search_user: searchUser,
     logout_user: logoutUser,
+    get_friend_status: getFriendStatus,
+    add_friend: addFriends,
+    delete_friend: deleteFriends,
 };
 
 module.exports = routes;

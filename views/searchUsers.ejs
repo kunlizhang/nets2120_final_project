@@ -8,14 +8,14 @@
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		<a class="navbar-brand" href="#">PennBook</a>
+		<a class="navbar-brand" href="/homepage">PennBook</a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mr-auto">
 				<li class="nav-item active">
-					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+					<a class="nav-link" href="/homepage">Home <span class="sr-only">(current)</span></a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="#">Link</a>
@@ -25,7 +25,8 @@
 				<input class="form-control mr-sm-2" type="search" name="keyword" placeholder="Search people" aria-label="Search">
 				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 			</form>
-			<a class="nav-link" href="/profile/">My Profile</a>
+			<a class="nav-link" href="/profile">My Profile</a>
+			<a class="nav-link" href="/logout">Logout</a>
 		</div>
 	</nav>
 	<div class="container">
@@ -37,7 +38,7 @@
 				<% for (user of users) {%>
 				<tr>
 					<td>
-						<%= user.fullname.S %>
+						<a href='/profile/<%=user.login.S%>''><%= user.fullname.S %></a>
 					</td>
 				</tr>
 				<% } %>

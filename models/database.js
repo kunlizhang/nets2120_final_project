@@ -164,12 +164,111 @@ var searchUser = function(keyword, callback) {
     });
 }
 
+/**
+ * FRIEND database queries
+ */
+
+var verifyFriends = function(login1, login2, callback) {
+    var params = {
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login1 } ]
+            },
+            friend_login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login2 } ]
+            },
+            
+        },
+        TableName: 'friend',
+        AttributesToGet: ['login', 'friend_login'],
+    };
+
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    });
+}
+
+var addFriends = function(login1, login2, callback) {
+    var params = {
+        Item: {
+            'login': { S: login1 },
+            'friend_login': { S: login2 }
+        },
+        TableName: 'friend',
+        ReturnValues: 'NONE'
+    };
+
+    db.putItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            var params = {
+                Item: {
+                    'login': { S: login2 },
+                    'friend_login': { S: login1 }
+                },
+                TableName: 'friend',
+                ReturnValues: 'NONE'
+            }; 
+
+            db.putItem(params, function(err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    callback();
+                }
+            })
+        }
+    })
+}
+
+var deleteFriends = function(login1, login2, callback) {
+    var params = {
+        Key: {
+            'login': { S: login1 },
+            'friend_login': { S: login2} ,
+        },
+        TableName: 'friend'
+    }
+
+    db.deleteItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            var params = {
+                Key: {
+                    'login': { S: login2 },
+                    'friend_login': { S: login1 },
+                },
+                TableName: 'friend'
+            }
+
+            db.deleteItem(params, function(err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    callback();
+                }
+            });
+        }
+    });
+}
+
 var database = {
     add_user: addUser,
     exists_user: existsUser,
     verify_user: verifyUser,
     get_user_info: getUserInfo,
     search_user: searchUser,
+    verify_friends: verifyFriends,
+    add_friend: addFriends,
+    delete_friend: deleteFriends,
 };
 
 module.exports = database;

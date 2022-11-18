@@ -12,11 +12,19 @@ app.get('/', routes.get_main);
 app.post('/checklogin', routes.check_login);
 app.get('/signup', routes.signup);
 app.post('/createaccount', routes.create_account);
-app.get('/profile', routes.get_my_profile);
-app.get('/profile/:login', routes.get_profile);
 app.post('/search', routes.search_user_redirect);
 app.get('/search/:keyword', routes.search_user)
 app.get('/logout', routes.logout_user);
+
+/**
+ * Routes for profile
+ */
+
+ app.get('/profile', routes.get_my_profile);
+ app.get('/profile/:login', routes.get_profile);
+ app.post('/getFriendStatus', routes.get_friend_status);
+ app.post('/addFriend', routes.add_friend);
+ app.post('/deleteFriend', routes.delete_friend);
 
 /**
  * Routes for wall
