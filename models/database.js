@@ -260,6 +260,7 @@ var deleteFriends = function(login1, login2, callback) {
     });
 }
 
+
 var database = {
     add_user: addUser,
     exists_user: existsUser,
