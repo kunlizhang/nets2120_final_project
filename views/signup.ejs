@@ -68,8 +68,8 @@
         What categories of news are you interested in? (Select at least 2)<p>
         <% categories.forEach(category => { %>
           <div style="display: inline">
-            <input type="checkbox" id=<%= category %> name="categories" value=<%= category %>>
-            <label for=<%= category %>><%= category %></label>
+            <input type="checkbox" id="<%= category %>" name="categories" value="<%= category %>">
+            <label for="<%= category %>"><%= category %></label>
           </div>
           &nbsp;
         <% }); %>

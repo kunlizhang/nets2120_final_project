@@ -68,7 +68,7 @@ var createAccount = function(req, res) {
           } else if (data) {
               res.redirect('/signup?error=' + encodeURIComponent('invalid_username'));
           } else {
-              db.add_user(login, password, firstname, lastname, email, affiliation, birthday, ['default'], function() {
+              db.add_user(login, password, firstname, lastname, email, affiliation, birthday, selected, function() {
                   req.session.login = login;
                   console.log('User ' + login + ' logged in.');
                   res.redirect('/homepage');
