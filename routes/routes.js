@@ -36,10 +36,16 @@ var checkLogin = function(req, res) {
     })
 }
 
+const categories = ["Crime", "Entertainment", "World News", "Impact", "Politics", "Weird News", "Black Voices",
+                    "Women", "Comedy", "Queer Voices", "Sports", "Business", "Travel", "Media", "Tech", "Religion",
+                    "Science", "Latino Voices", "Education", "College", "Parents", "Arts & Culture", "Style",
+                    "Green", "Taste", "Healthy Living", "The Worldpost", "Good News", "Worldpost", "Fifty", "Arts",
+                    "Wellness", "Parenting", "Home & Living", "Style & Beauty", "Divorce", "Weddings", "Food & Drink",
+                    "Money", "Environment", "Culture & Arts"];
 // Signup page
 var signup = function(req, res) {
     var error = req.query.error ? req.query.error: "";
-    res.render('signup.ejs', { error: error });
+    res.render('signup.ejs', { error: error, categories: categories});
 }
 
 // Create an account
@@ -51,20 +57,25 @@ var createAccount = function(req, res) {
     var email = req.body.email;
     var affiliation = req.body.affiliation;
     var birthday = req.body.birthday;
+    var selected = req.body.categories;
     
-    db.exists_user(login, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else if (data) {
-            res.redirect('/signup?error=' + encodeURIComponent('invalid_username'));
-        } else {
-            db.add_user(login, password, firstname, lastname, email, affiliation, birthday, ['default'], function() {
-                req.session.login = login;
-                console.log('User ' + login + ' logged in.');
-                res.redirect('/homepage');
-            });
-        }
-    });
+    if (selected == null || selected.count < 2) {
+      res.redirect('/signup?error=' + encodeURIComponent('categories_selected'));
+    } else {
+      db.exists_user(login, function(err, data) {
+          if (err) {
+              console.log(err);
+          } else if (data) {
+              res.redirect('/signup?error=' + encodeURIComponent('invalid_username'));
+          } else {
+              db.add_user(login, password, firstname, lastname, email, affiliation, birthday, ['default'], function() {
+                  req.session.login = login;
+                  console.log('User ' + login + ' logged in.');
+                  res.redirect('/homepage');
+              });
+          }
+      });
+    }
 }
 
 

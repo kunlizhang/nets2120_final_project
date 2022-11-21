@@ -64,6 +64,17 @@
 				<label for="affiliation">Affiliation</label>
 				<input type="text" class="form-control" name="affiliation" placeholder="Affiliation" required>
 			</div>
+      <div class="form-group">
+        What categories of news are you interested in? (Select at least 2)<p>
+        <% categories.forEach(category => { %>
+          <div style="display: inline">
+            <input type="checkbox" id=<%= category %> name="categories" value=<%= category %>>
+            <label for=<%= category %>><%= category %></label>
+          </div>
+          &nbsp;
+        <% }); %>
+      </div>
+      
 			<input type="submit" class="btn btn-primary" value="Create account">		
 			<button onclick="location.href = '/'" class="btn btn-link">Return to login</button>
     	</form>
@@ -71,6 +82,10 @@
     <% if (error === 'invalid_username') { %>
     <div class="alert alert-danger" style='margin-top:15px'>
       Username already taken, please try again!
+    </div>
+    <% } else if (error === 'categories_selected') { %>
+    <div class="alert alert-danger" style='margin-top:15px'>
+      Please select at least 2 news categories!
     </div>
     <% } %>
 </body>
