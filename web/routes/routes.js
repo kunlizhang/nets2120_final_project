@@ -205,6 +205,17 @@ var makePost = function(req, res) {
     }
 }
 
+var makeComment = function(req, res) {
+    let user = req.session.login;
+    if (!user) {
+        res.redirect('/');
+    } else {
+        db.add_comment(user, req.body.post_id, req.body.message, function(data) {
+            res.send({success: true, data: data});
+        });
+    }
+}
+
 /**
  * Routes for homepage
  */
@@ -230,6 +241,7 @@ var routes = {
     delete_friend: deleteFriends,
     search_JSON: searchJSON,
     make_post: makePost,
+    make_comment: makeComment,
 };
 
 module.exports = routes;

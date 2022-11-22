@@ -60,6 +60,7 @@ app.get('/logout', routes.logout_user);
  */
  app.get('/wall/:login', routes.get_wall);
  app.post('/makePost', routes.make_post);
+ app.post('/makeComment', routes.make_comment);
 
 /**
  * Routes for homepage

@@ -30,6 +30,22 @@
       }
     });
   }
+    
+  function makeComment(post_id) {
+    $.ajax({
+      type: "POST",
+      url: '/makeComment',
+      data: {
+        post_id: post_id,
+        message: $('#comment-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+            location.reload(); // this is temporary
+        }
+      }
+    })
+  }
 </script>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -77,6 +93,12 @@
             <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
             <p class="card-text"><%= post.timestamp.S %></p>
           </div>
+        <div class="card" style="width: 40rem">
+        <textarea id="comment-message" name="comment-message" rows="1" cols="50"></textarea>
+        <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+          <span id='comment-text'>Comment</span>
+        </button>
+        </div>
         </div>
           <% post.comments.SS.forEach(comment => { %>
             <% if (comment != "default") { %>

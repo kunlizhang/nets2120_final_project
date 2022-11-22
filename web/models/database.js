@@ -341,6 +341,28 @@ var addPost = function(login, message, timestamp, callback) {
     });
 }
 
+var addComment = function(login, post_id, message, callback) {
+    let value = login.concat(", ", message);
+    var params = {
+        TableName: "posts",
+        "Key": { 
+          "login": { "S": login },
+          "post_id": { "S": post_id },
+       },
+        UpdateExpression: 'ADD comments :comment',
+        ExpressionAttributeValues: {
+            ':comment': { 'SS': [value] }
+        },
+    };
+    
+    db.updateItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    });
+}
 
 var database = {
     add_user: addUser,
@@ -354,6 +376,7 @@ var database = {
     get_friends: getFriends,
     get_posts: getPosts,
     add_post: addPost,
+    add_comment: addComment,
 };
 
 module.exports = database;
