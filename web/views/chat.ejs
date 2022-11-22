@@ -53,12 +53,16 @@
         border-top-left-radius: 0;
         border-top-right-radius: 0;
     }
+    
+    table, th, td {
+		border:1px solid black;
+	}
 </style>
 
 <script>
 	var chat_id = window.location.href.split('id=')[1];
 	var socket = io();
-	var time_sent = "0";
+	let time_sent = "0";
 	function sendChat() {
 		if ($('#input').val().trim() !== '') {
 			$.post('/addMessage', {content: $('#input').val().trim(), sender: $('#username').text(),
@@ -75,6 +79,7 @@
 				}
 			});
 		}
+		time_sent += "0";
 	}
 	
 	$(document).ready(function () {
@@ -100,6 +105,15 @@
 <body class="text-center">
 	<!-- This is a simple example template with a form that has a single input field. 
 		   You'll need something similar for the login page -->
+    <table style="width=100%">
+    <% messages.forEach(function (element, index, array) { %>
+  	<tr>
+  		<td><%= element.content.S %></td>
+  	</tr>
+  	<% }); %>
+    
+    </table>
+    
     
     <div>
     	<ul id="messages">
