@@ -171,15 +171,38 @@ var deleteFriends = function(req, res) {
  */
 
 var getWall = function(req, res) {
-    var login = req.params.login;
+    let login = req.params.login;
     db.get_friends(login, function(data) {
         data.push(login);
-        console.log(data);
         db.get_posts(data, function(posts) {
             posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) });
-            res.render('wall.ejs', {posts: posts});
+            res.render('wall.ejs', {posts: posts, login: login});
         });
     });
+}
+
+var makePost = function(req, res) {
+    let user = req.session.login;
+    let login = req.body.login;
+    if (!user) {
+        res.redirect('/');
+    } else {
+        if (user == login) {
+            db.add_post(user, req.body.message, new Date().toJSON(), function(data) {
+                res.send({success: true, data: data});
+            });
+        } else {
+            db.verify_friends(user, login, function(data) {
+                if (data.Count > 0) {
+                    db.add_post(user, req.body.message, new Date().toJSON(), function(data) {
+                        res.send({success: true, data: data});
+                    });
+                } else {
+                    res.send({success: false});
+                }
+            });
+        }
+    }
 }
 
 /**
@@ -206,6 +229,7 @@ var routes = {
     add_friend: addFriends,
     delete_friend: deleteFriends,
     search_JSON: searchJSON,
+    make_post: makePost,
 };
 
 module.exports = routes;

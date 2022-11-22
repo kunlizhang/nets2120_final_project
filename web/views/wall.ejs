@@ -8,6 +8,29 @@
   <link rel="stylesheet" href="/css/search.css">
   <script src="/js/search.js"></script>
 </head>
+<script>
+  var login = '<%= login %>';
+  var posts = [];
+  
+  function makePost() {
+    $.ajax({
+      type: "POST",
+      url: '/makePost',
+      data: {
+        login: login,
+        message: $('#post-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+        	  $('#post-warning').hide();
+        	  location.reload(); // this is temporary
+        } else {
+        	  $('#post-warning').show();
+        }
+      }
+    });
+  }
+</script>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/homepage">PennBook</a>
@@ -36,17 +59,37 @@
   <h1>
       Wall
   </h1>
-  <% posts.forEach(post => { %>
-    <div>
-      <%= post.message.S %>
-      <%= post.login.S %>
-      <%= post.timestamp.S %>
-      <% post.comments.SS.forEach(comment => { %>
-        <% const [user, ...message] = comment.split(', '); %>
-        <%= user %>
-        <%= message %>
-      <% }); %>
-    </div>
-  <% }); %>
+  <div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+  <div>
+    <textarea id="post-message" name="post-message" rows="4" cols="50"></textarea><br>
+    <button id='post-button' class="btn btn-primary" onclick="makePost()">
+      <span id='post-text'>Post</span>
+    </button>
+  </div>
+  <% if (posts.length == 0) { %>
+    <h3>No posts!</h3>
+  <% } else { %>
+    <% posts.forEach(post => { %>
+      <div style="margin: 1cm">
+        <div class="card" style="width: 40rem">
+          <div class="card-body">
+            <p class="card-text"><%= post.message.S %></p>
+            <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
+            <p class="card-text"><%= post.timestamp.S %></p>
+          </div>
+        </div>
+          <% post.comments.SS.forEach(comment => { %>
+            <% if (comment != "default") { %>
+              <div class="card" style="width: 40rem">
+              <% const [user, ...message] = comment.split(', '); %>
+              <p class="card-text"><%= message %></p>
+              <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
+              </div>
+            <% } %>
+          <% }); %>
+        </div>
+      </div>
+    <% }); %>
+  <% } %>
 </body>
 </html>

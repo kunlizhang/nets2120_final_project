@@ -3,6 +3,7 @@ const { createHash } = require('crypto');
 const { brotliDecompress } = require('zlib');
 AWS.config.update({region:'us-east-1'});
 var db = new AWS.DynamoDB();
+const {v4: uuidv4} = require('uuid');
 
 /**
  * Helper functions
@@ -26,7 +27,7 @@ var addUser = function(login, password, firstname, lastname, email, affiliation,
             'password': { S: hash(password) },
             'firstname': { S: firstname },
             'lastname': { S: lastname },
-            'email': { S : email },
+            'email': { S: email },
             'affiliation': { S: affiliation },
             'birthday': { S: birthday },
             'interests': { SS: interests }
@@ -317,6 +318,29 @@ var getPosts = function(users, callback) {
     );
 }
 
+var addPost = function(login, message, timestamp, callback) {
+    let id = uuidv4().toString();
+    var params = {
+        Item: {
+            'login': { S: login },
+            'post_id': { S: hash(id) },
+            'comments': { SS: ["default"] },
+            'message': { S: message },
+            'timestamp': { S: timestamp },
+        },
+        TableName: "posts",
+        ReturnValues: 'NONE'
+    };
+    
+    db.putItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data);
+        }
+    });
+}
+
 
 var database = {
     add_user: addUser,
@@ -329,6 +353,7 @@ var database = {
     delete_friend: deleteFriends,
     get_friends: getFriends,
     get_posts: getPosts,
+    add_post: addPost,
 };
 
 module.exports = database;

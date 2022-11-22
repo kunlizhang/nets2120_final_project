@@ -59,6 +59,7 @@ app.get('/logout', routes.logout_user);
  * Routes for wall
  */
  app.get('/wall/:login', routes.get_wall);
+ app.post('/makePost', routes.make_post);
 
 /**
  * Routes for homepage
