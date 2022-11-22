@@ -260,6 +260,63 @@ var deleteFriends = function(login1, login2, callback) {
     });
 }
 
+var getFriends = function(login, callback) {
+    var params = {
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            },
+            
+        },
+        TableName: 'friend',
+    };
+  
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data.Items.map(elem => elem.friend_login.S));
+        }
+    });
+}
+
+var getPosts = function(users, callback) {
+    let promises = [];
+    users.forEach(user => {
+        const promise = new Promise((resolve, reject) => {
+            var params = {
+                KeyConditions: {
+                    login: {
+                        ComparisonOperator: 'EQ',
+                        AttributeValueList: [ { S: user } ]
+                    },
+                    
+                },
+                TableName: 'posts',
+            };
+          
+            db.query(params, function(err, data) {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                } else {
+                    resolve(data.Items);
+                }
+            });
+        });
+        promises.push(promise);
+    });
+    Promise.all(promises).then(
+        successData => {
+            callback([].concat.apply([], successData));
+        },
+        errorData => {
+            console.log(err);
+        }
+    );
+}
+
 
 var database = {
     add_user: addUser,
@@ -270,6 +327,8 @@ var database = {
     verify_friends: verifyFriends,
     add_friend: addFriends,
     delete_friend: deleteFriends,
+    get_friends: getFriends,
+    get_posts: getPosts,
 };
 
 module.exports = database;

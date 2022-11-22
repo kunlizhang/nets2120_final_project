@@ -9,10 +9,9 @@
 </head>
 <script>
 	var curr_user = '<%= curr_user %>';
-	var login = '<%= login%>';
+	var login = '<%= login %>';
 
 	var are_friends = false;
-
 	function checkFriends() {
 		$.ajax({
 			type: "POST",
@@ -125,6 +124,13 @@
 				<%= affiliation%>
 			</div>
 		</div>
+    <div class="row">
+      <div class="form-group">
+      <form action="/wall/<%= login %>" method="get">
+        <input type="submit" value="Wall">
+      </form>
+      </div>
+    </div>
 	</div>
     
 </body>

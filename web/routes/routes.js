@@ -59,7 +59,7 @@ var createAccount = function(req, res) {
     var birthday = req.body.birthday;
     var selected = req.body.categories;
     
-    if (selected == null || selected.count < 2) {
+    if (selected == null || selected.count < 2 || typeof selected === 'string') {
       res.redirect('/signup?error=' + encodeURIComponent('categories_selected'));
     } else {
       db.exists_user(login, function(err, data) {
@@ -171,7 +171,15 @@ var deleteFriends = function(req, res) {
  */
 
 var getWall = function(req, res) {
-    res.render('wall.ejs');
+    var login = req.params.login;
+    db.get_friends(login, function(data) {
+        data.push(login);
+        console.log(data);
+        db.get_posts(data, function(posts) {
+            posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) });
+            res.render('wall.ejs', {posts: posts});
+        });
+    });
 }
 
 /**

@@ -37,7 +37,7 @@ app.get('/logout', routes.logout_user);
 /**
  * Routes for wall
  */
-app.get('/wall', routes.get_wall);
+ app.get('/wall/:login', routes.get_wall);
 
 /**
  * Routes for homepage
