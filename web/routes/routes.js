@@ -224,7 +224,11 @@ var makeComment = function(req, res) {
  */
 
 var getHomepage = function(req, res) {
-    res.render('homepage.ejs');
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        res.render('homepage.ejs');
+    }
 }
 
 var routes = {
