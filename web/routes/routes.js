@@ -134,6 +134,7 @@ var getProfile = function(req, res) {
                 email: info.email.S,
                 affiliation: info.affiliation.S,
                 birthday: info.birthday.S,
+                interests: info.interests.SS,
                 curr_user: req.session.login,
                 friends: friends,
             });
@@ -170,28 +171,28 @@ var deleteFriends = function(req, res) {
 }
 
 var changeAffiliation = function(req, res) {
-    var login = req.body.login;
+    var login = req.session.login;
     var affiliation = req.body.affiliation; // TODO: implement as form in profile
 
     db.change_affiliation(login, affiliation, function() {res.redirect("/profile")}); // TODO: make status update
 }
 
 var changeEmail = function(req, res) {
-    var login = req.body.login;
+    var login = req.session.login;
     var email = req.body.email; // TODO: implement as form in profile
 
     db.change_email(login, email, function() {res.redirect("/profile")}); 
 }
 
 var changePassword = function(req, res) {
-    var login = req.body.login;
+    var login = req.session.login;
     var password = req.body.password; // TODO: implement as form in profile
 
     db.change_password(login, password, function() {res.redirect("/profile")});
 }
 
 var changeInterests = function(req, res) {
-    var login = req.body.login;
+    var login = req.session.login;
     var interests = req.body.interests; // TODO: implement as form in profile
 
     db.change_interests(login, interests, function() {res.redirect("/profile")}); // TODO: make status update
