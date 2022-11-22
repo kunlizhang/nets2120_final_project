@@ -11,14 +11,14 @@
         height: 100%;
     }
 
-    .form-signin {
+    .form-createchat {
         width: 100%;
         max-width: 330px;
         padding: 15px;
         margin: 0 auto;
     }
 
-    .form-signin .form-control {
+    .form-createchat .form-control {
         position: relative;
         box-sizing: border-box;
         height: auto;
@@ -41,39 +41,56 @@
         background-color: #f5f5f5;
     }
 
-    .form-signin input[type="text"] {
+    .form-createchat input[type="text"] {
         margin-bottom: -1px;
         border-bottom-right-radius: 0;
         border-bottom-left-radius: 0;
     }
     
-    .form-signin input[type="password"] {
+    .form-createchat input[type="password"] {
         margin-bottom: 10px;
         border-top-left-radius: 0;
         border-top-right-radius: 0;
     }
+    
+    table, th, td {
+		border:1px solid black;
+	}
 </style>
+
 <body class="text-center">
 	<!-- This is a simple example template with a form that has a single input field. 
 		   You'll need something similar for the login page -->
     
-    <form action="/checklogin" method="post" class="form-signin">
-        <h1>PennBook</h1>
-        <label for="login" class="sr-only">Login</label>
-        <input type="text" class="form-control" name="login" placeholder="Login" required autofocus>
-        <label for="password" class="sr-only">Password</label>
-        <input type="password" class="form-control" name="password" placeholder="Password" required>
-        <input type="submit" class="btn btn-lg btn-primary btn-block" value="Login">		
-        <button onclick="location.href = '/signup'" class="btn btn-link">Sign up!</button>
-        <% if (error === 'invalid_login') { %>
+    <form action="/makeChat" method="post" class="form-createchat">
+        <h1>Form Chat</h1>
+        <label for="login" class="sr-only">User 1</label>
+        <input type="text" class="form-control" name="user_1" placeholder="Username 1" required autofocus>
+        <label for="password" class="sr-only">User 2</label>
+        <input type="text" class="form-control" name="user_2" placeholder="Username 2" required>
+        <input type="submit" class="btn btn-lg btn-primary btn-block" value="Create">		
+        <% if (error == 1) { %>
             <div class="alert alert-danger" style='margin-top:15px'>
-              Invalid login credentials!
+              Please make sure all fields are filled.
+            </div>
+        <% } %>
+        <% if (error == 2) { %>
+            <div class="alert alert-danger" style='margin-top:15px'>
+              Failed to write to database.
             </div>
         <% } %>
         <p>
             Built by G36
         </p> 
     </form>
-    
+    <br>
+    <table style="width:100%">
+  	<% user_chats.forEach(function (element, index, array) { %>
+  		<tr>
+  		<td><a href="/chats?id=<%= element.chat_id.S %>">Chat <%= index + 1 %></a></td>
+  		</tr>
+  	<% }); %>
+
+	</table>
 </body>
 </html>

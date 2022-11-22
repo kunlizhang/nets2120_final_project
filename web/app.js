@@ -1,11 +1,32 @@
 var express = require('express');
 var routes = require('./routes/routes.js');
+var chatRoutes = require('./routes/chat_routes.js');
 var session = require('express-session');
-var app = express()
+var app = express();
+var http = require("http").Server(app);
+var io = require('socket.io')(http);
 app.use(session({secret: "mySecret"})); //Not sure if I am using sessions properly here?
 app.use(express.urlencoded());
-
 app.use(express.static(__dirname + '/public'));
+
+// io
+io.on("connection", function(socket) {
+	socket.on("message sent", function(obj) {
+		console.log("Sent to room: " + obj.room);
+		io.to(obj.room).emit("message sent", obj);
+	});
+	
+	socket.on("join room", function(obj) {
+		console.log("Joined room: " + obj.room);
+		socket.join(obj.room);
+	});
+	
+	socket.on("leave room", function(obj) {
+		socket.leave(obj.room);
+	});
+});
+
+
 
 /**
  * Routes for user
@@ -44,5 +65,14 @@ app.get('/logout', routes.logout_user);
  */
 app.get('/homepage', routes.get_homepage);
 
-app.listen(8080);
+/**
+ * Routes for chat
+ */
+app.get('/chats', chatRoutes.show_chat);
+app.get('/createChat', chatRoutes.get_create_chat);
+app.post('/addMessage', chatRoutes.add_message);
+app.post('/makeChat', chatRoutes.make_chat);
+
+
+http.listen(8080);
 console.log('Server running on port 8080.')
