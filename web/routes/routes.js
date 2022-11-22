@@ -125,15 +125,18 @@ var getMyProfile = function(req, res) {
 var getProfile = function(req, res) {
     var login = req.params.login;
     db.get_user_info(login, function(data) {
-        var info = data.Items[0]
-        res.render('profile.ejs', {
-            login: info.login.S,
-            firstname: info.firstname.S,
-            lastname: info.lastname.S,
-            email: info.email.S,
-            affiliation: info.affiliation.S,
-            birthday: info.birthday.S,
-            curr_user: req.session.login,
+        db.get_friends_info(login, function(friends) {
+            var info = data.Items[0]
+            res.render('profile.ejs', {
+                login: info.login.S,
+                firstname: info.firstname.S,
+                lastname: info.lastname.S,
+                email: info.email.S,
+                affiliation: info.affiliation.S,
+                birthday: info.birthday.S,
+                curr_user: req.session.login,
+                friends: friends,
+            });
         });
     });
 }

@@ -282,6 +282,27 @@ var getFriends = function(login, callback) {
     });
 }
 
+var getFriendsInfo = function(login, callback) {
+    var params = {
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            },
+            
+        },
+        TableName: 'friend',
+    };
+  
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data.Items);
+        }
+    });
+}
+
 var getPosts = function(users, callback) {
     let promises = [];
     users.forEach(user => {
@@ -374,9 +395,11 @@ var database = {
     add_friend: addFriends,
     delete_friend: deleteFriends,
     get_friends: getFriends,
+    get_friends_info: getFriendsInfo,
     get_posts: getPosts,
     add_post: addPost,
     add_comment: addComment,
+
 };
 
 module.exports = database;

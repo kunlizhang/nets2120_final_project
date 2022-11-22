@@ -124,13 +124,29 @@
 				<%= affiliation%>
 			</div>
 		</div>
-    <div class="row">
-      <div class="form-group">
-      <form action="/wall/<%= login %>" method="get">
-        <input type="submit" value="Wall">
-      </form>
-      </div>
-    </div>
+		<div class="row">
+			<div class="col-sm-2">
+				Friends
+			</div>
+			<div class="col-sm-4">
+				<ul>
+					<% for (var i = 0; i < friends.length; i++) { %>
+					<li>
+						<a href="/profile/<%= friends[i].friend_login.S %>">
+							<%= friends[i].friend_login.S %>
+						</a>
+					</li>
+					<% } %>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-group">
+				<form action="/wall/<%= login %>" method="get">
+					<input type="submit" value="Wall">
+				</form>
+			</div>
+    	</div>
 	</div>
     
 </body>
