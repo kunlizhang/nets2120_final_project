@@ -169,6 +169,35 @@ var deleteFriends = function(req, res) {
     db.delete_friend(login1, login2, function() {res.send()});
 }
 
+var changeAffiliation = function(req, res) {
+    var login = req.body.login;
+    var affiliation = req.body.affiliation; // TODO: implement as form in profile
+
+    db.change_affiliation(login, affiliation, function() {res.redirect("/profile")}); // TODO: make status update
+}
+
+var changeEmail = function(req, res) {
+    var login = req.body.login;
+    var email = req.body.email; // TODO: implement as form in profile
+
+    db.change_email(login, email, function() {res.redirect("/profile")}); 
+}
+
+var changePassword = function(req, res) {
+    var login = req.body.login;
+    var password = req.body.password; // TODO: implement as form in profile
+
+    db.change_password(login, password, function() {res.redirect("/profile")});
+}
+
+var changeInterests = function(req, res) {
+    var login = req.body.login;
+    var interests = req.body.interests; // TODO: implement as form in profile
+
+    db.change_interests(login, interests, function() {res.redirect("/profile")}); // TODO: make status update
+}
+
+
 /**
  * Routes for wall
  */
@@ -246,6 +275,10 @@ var routes = {
     get_friend_status: getFriendStatus,
     add_friend: addFriends,
     delete_friend: deleteFriends,
+    change_affiliation: changeAffiliation,
+    change_email: changeEmail,
+    change_password: changePassword,
+    change_interests: changeInterests,
     search_JSON: searchJSON,
     make_post: makePost,
     make_comment: makeComment,
