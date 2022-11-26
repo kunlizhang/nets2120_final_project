@@ -62,8 +62,15 @@
 <script>
 	var chat_id = window.location.href.split('id=')[1];
 	var socket = io();
-	let time_sent = "0";
+	
 	function sendChat() {
+		const date = new Date(Date.now());
+		const time_sent = ("00" + (date.getMonth() + 1)).slice(-2) + "/" + 
+						("00" + date.getDate()).slice(-2) + "/" + 
+						date.getFullYear() + " " + 
+						("00" + date.getHours()).slice(-2) + ":" + 
+						("00" + date.getMinutes()).slice(-2) + ":" + 
+						("00" + date.getSeconds()).slice(-2);
 		if ($('#input').val().trim() !== '') {
 			$.post('/addMessage', {content: $('#input').val().trim(), sender: $('#username').text(),
 										chat_id: chat_id, time: time_sent}, function (data) {
@@ -103,20 +110,13 @@
 	});
 </script>
 <body class="text-center">
-	<!-- This is a simple example template with a form that has a single input field. 
-		   You'll need something similar for the login page -->
-    <table style="width=100%">
-    <% messages.forEach(function (element, index, array) { %>
-  	<tr>
-  		<td><%= element.content.S %></td>
-  	</tr>
-  	<% }); %>
-    
-    </table>
-    
     
     <div>
     	<ul id="messages">
+    		<!-- Display old messages -->
+    		<% messages.forEach(function (element, index, array) { %>
+		  		<li><%= element.content.S %></li>
+		  	<% }); %>
     	</ul>
     </div>
     <form id="message-form">
