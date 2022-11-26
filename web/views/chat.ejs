@@ -6,6 +6,7 @@
     <!-- CSS only -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 	<meta name='viewport' content='width=device-width, initial-scale=1'></meta>
+	<link rel="stylesheet" href="/css/search.css">
 </head>
 <style>
     html, body {
@@ -110,12 +111,42 @@
 	});
 </script>
 <body class="text-center">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="/homepage">PennBook</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="/homepage">Home <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#">Link</a>
+				</li>
+				<li class="nav-item active">
+					<a class="nav-link" href="/createChat">Start Chat<span class="sr-only">(current)</span></a>
+				</li>
+			</ul>
+			<form class="form-inline my-2 my-lg-0" action="/search" method="post" autocomplete="off">
+				<span class="autocomplete">
+					<input id="user-search" class="form-control mr-sm-2" type="search" name="keyword" placeholder="Search people" aria-label="Search">
+				</span>
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+			<a class="nav-link" href="/profile">My Profile</a>
+			<a class="nav-link" href="/logout">Logout</a>
+		</div>
+	</nav>
+    
     
     <div>
     	<ul id="messages">
     		<!-- Display old messages -->
     		<% messages.forEach(function (element, index, array) { %>
 		  		<li><%= element.content.S %></li>
+		  		<li><%= element.sender.S %></li>
+		  		<li><%= element.time_sent.S %></li>
 		  	<% }); %>
     	</ul>
     </div>
