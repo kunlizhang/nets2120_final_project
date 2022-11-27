@@ -232,7 +232,7 @@ var makeComment = function(req, res) {
         if (comment == null || comment == "") {
             res.send({result: 2});
         } else {
-            db.add_comment(user, req.body.post_id, comment, function(data) {
+            db.add_comment(req.body.post_user, user, req.body.post_id, comment, function(data) {
                 res.send({result: 0, data: data});
             });
         }

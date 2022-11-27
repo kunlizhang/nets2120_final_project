@@ -342,12 +342,12 @@ var addPost = function(login, message, timestamp, callback) {
     });
 }
 
-var addComment = function(login, post_id, message, callback) {
+var addComment = function(post_user, login, post_id, message, callback) {
     let value = login.concat(", ", message);
     var params = {
         TableName: "posts",
         "Key": { 
-          "login": { "S": login },
+          "login": { "S": post_user },
           "post_id": { "S": post_id },
        },
         UpdateExpression: 'ADD comments :comment',
