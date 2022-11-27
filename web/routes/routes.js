@@ -178,6 +178,21 @@ var deleteFriends = function(req, res) {
 /**
  * Routes for wall
  */
+var getPosts = function(req, res) {
+    var login = req.body.login;
+    if (login == null || login == "") {
+        res.send({posts: []});
+    } else {
+        db.get_friends_info(login, function(friends) {
+            var postNames = friends.map(elem => elem.friend_login.S);
+            postNames.push(login);
+            db.get_posts(postNames, function(posts) {
+                posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                res.send({posts: posts});
+            });
+        });
+    }
+}
 
 var makePost = function(req, res) {
     let user = req.session.login;
@@ -253,6 +268,7 @@ var routes = {
     search_JSON: searchJSON,
     make_post: makePost,
     make_comment: makeComment,
+    get_posts: getPosts,
 };
 
 module.exports = routes;

@@ -10,6 +10,7 @@
 <script>
 	var curr_user = '<%= curr_user %>';
 	var login = '<%= login %>';
+	var mostRecentPost;
 
 	var are_friends = false;
 	function checkFriends() {
@@ -65,8 +66,59 @@
 			})
 		}
 	}
-
-	checkFriends();
+	
+	function makePostHelper(msg, login, timestamp, post_id) {
+		  var message = document.createElement("li");
+      var message_temp = document.createElement("div");
+      message_temp.setAttribute("style", "margin: 1cm");
+      var msg_content = document.createElement("div");
+      msg_content.setAttribute("class", "card");
+      msg_content.setAttribute("style", "width: 40rem");
+      var content = document.createElement("div");
+      content.setAttribute("class", "card-body");
+      var text = document.createElement("p");
+      text.setAttribute("class", "card-text");
+      text.innerText = msg;
+      var name = document.createElement("a");
+      name.setAttribute("href", "/profile/" + login);
+      name.setAttribute("class", "card-text");
+      name.innerText = login;
+      var time = document.createElement("p");
+      time.setAttribute("id", "timestamp");
+      time.setAttribute("class", "card-text");
+      time.innerText = timestamp;
+      content.appendChild(text);
+      content.appendChild(name);
+      content.appendChild(time);
+      var comment_box = document.createElement("div");
+      comment_box.setAttribute("class", "card");
+      comment_box.setAttribute("style", "width: 40rem");
+      var comment = document.createElement("textarea");
+      comment.setAttribute("id", "comment-message-" + post_id);
+      comment.setAttribute("name", "comment-message-" + post_id);
+      comment.setAttribute("rows", "1");
+      comment.setAttribute("cols", "50");
+      var button = document.createElement("button");
+      button.setAttribute("id", post_id);
+      button.setAttribute("name", post_id);
+      button.setAttribute("class", "btn btn-primary");
+      button.onclick = function() { makeComment(post_id) };
+      var btn_span = document.createElement("span");
+      btn_span.setAttribute("id", "comment-text");
+      btn_span.innerText = "Comment"
+      button.appendChild(btn_span);
+      comment_box.appendChild(comment);
+      comment_box.appendChild(button);
+      msg_content.appendChild(content);
+      msg_content.appendChild(comment_box);
+      var comment_list = document.createElement("ul");
+      comment_list.setAttribute("id", "comments-" + post_id);
+      comment_list.setAttribute("style", "list-style-type: none");
+      message_temp.appendChild(msg_content);
+      message_temp.appendChild(comment_list);
+      message.appendChild(message_temp);
+      $('#posts').prepend(message);
+	}
 	  
   function makePost() {
     $.ajax({
@@ -80,56 +132,8 @@
         if (data.result == 0) {
             $('#post-warning').hide();
             var post = data.data;
-
-            var message = document.createElement("li");
-            var message_temp = document.createElement("div");
-            message_temp.setAttribute("style", "margin: 1cm");
-            var msg_content = document.createElement("div");
-            msg_content.setAttribute("class", "card");
-            msg_content.setAttribute("style", "width: 40rem");
-            var content = document.createElement("div");
-            content.setAttribute("class", "card-body");
-            var text = document.createElement("p");
-            text.setAttribute("class", "card-text");
-            text.innerText = post.message.S;
-            var name = document.createElement("a");
-            name.setAttribute("href", "/profile/" + post.login.S);
-            name.setAttribute("class", "card-text");
-            name.innerText = post.login.S;
-            var time = document.createElement("p");
-            time.setAttribute("class", "card-text");
-            time.innerText = post.timestamp.S;
-            content.appendChild(text);
-            content.appendChild(name);
-            content.appendChild(time);
-            var comment_box = document.createElement("div");
-            comment_box.setAttribute("class", "card");
-            comment_box.setAttribute("style", "width: 40rem");
-            var comment = document.createElement("textarea");
-            comment.setAttribute("id", "comment-message-" + post.post_id.S);
-            comment.setAttribute("name", "comment-message-" + post.post_id.S);
-            comment.setAttribute("rows", "1");
-            comment.setAttribute("cols", "50");
-            var button = document.createElement("button");
-            button.setAttribute("id", post.post_id.S);
-            button.setAttribute("name", post.post_id.S);
-            button.setAttribute("class", "btn btn-primary");
-            button.onclick = function() { makeComment(post.post_id.S) };
-            var btn_span = document.createElement("span");
-            btn_span.setAttribute("id", "comment-text");
-            btn_span.innerText = "Comment"
-            button.appendChild(btn_span);
-            comment_box.appendChild(comment);
-            comment_box.appendChild(button);
-            msg_content.appendChild(content);
-            msg_content.appendChild(comment_box);
-            var comment_list = document.createElement("ul");
-            comment_list.setAttribute("id", "comments-" + post.post_id.S);
-            comment_list.setAttribute("style", "list-style-type: none");
-            message_temp.appendChild(msg_content);
-            message_temp.appendChild(comment_list);
-            message.appendChild(message_temp);
-            $('#posts').prepend(message);
+            makePostHelper(post.message.S, post.login.S, post.timestamp.S, post.post_id.S);
+            mostRecentPost = post.timestamp.S;
         } else if (data.result == 1) {
             $('#post-warning').show();
         } else {
@@ -168,8 +172,34 @@
           $('#comments-' + post_id).prepend(comment);
         }
       }
-    })
+    });
   }
+  
+  function refreshPosts() {
+	  $.post('/getPosts', {login: login}, function(data) {
+		    let posts = data.posts;
+		    for (let i = posts.length - 1; i >= 0; i--) {
+		    	  let post = posts[i];
+    		    if (mostRecentPost == null || mostRecentPost == "" || new Date(post.timestamp.S) - new Date(mostRecentPost) > 0) {
+    		        makePostHelper(post.message.S, post.login.S, post.timestamp.S, post.post_id.S);
+    		        if (i == 0) {
+    		        	  mostRecentPost = post.timestamp.S;
+    		        }
+    		    }
+		    }
+	  });
+  }
+  
+  $(document).ready(function() {
+	  mostRecentPost = $('ul#posts li:first').find("#timestamp").text();
+	  
+	  checkFriends();
+	  refreshPosts();
+	  setInterval(function() {
+		  checkFriends();
+		  refreshPosts();
+	  }, 10000);
+  });
 
 </script>
 <body>
@@ -266,7 +296,7 @@
               <div class="card-body">
                 <p class="card-text"><%= post.message.S %></p>
                 <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
-                <p class="card-text"><%= post.timestamp.S %></p>
+                <p id="timestamp" class="card-text"><%= post.timestamp.S %></p>
               </div>
               <div class="card" style="width: 40rem">
               <textarea id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>" rows="1" cols="50"></textarea>

@@ -58,6 +58,7 @@ app.get('/logout', routes.logout_user);
 /**
  * Routes for wall
  */
+ app.post('/getPosts', routes.get_posts);
  app.post('/makePost', routes.make_post);
  app.post('/makeComment', routes.make_comment);
 
