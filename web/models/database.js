@@ -261,27 +261,6 @@ var deleteFriends = function(login1, login2, callback) {
     });
 }
 
-var getFriends = function(login, callback) {
-    var params = {
-        KeyConditions: {
-            login: {
-                ComparisonOperator: 'EQ',
-                AttributeValueList: [ { S: login } ]
-            },
-            
-        },
-        TableName: 'friend',
-    };
-  
-    db.query(params, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            callback(data.Items.map(elem => elem.friend_login.S));
-        }
-    });
-}
-
 var getFriendsInfo = function(login, callback) {
     var params = {
         KeyConditions: {
@@ -332,9 +311,10 @@ var getPosts = function(users, callback) {
     Promise.all(promises).then(
         successData => {
             callback([].concat.apply([], successData));
-        },
+        }
+    ).catch(
         errorData => {
-            console.log(err);
+            console.log(errorData);
         }
     );
 }
@@ -394,7 +374,6 @@ var database = {
     verify_friends: verifyFriends,
     add_friend: addFriends,
     delete_friend: deleteFriends,
-    get_friends: getFriends,
     get_friends_info: getFriendsInfo,
     get_posts: getPosts,
     add_post: addPost,

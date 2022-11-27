@@ -126,16 +126,22 @@ var getProfile = function(req, res) {
     var login = req.params.login;
     db.get_user_info(login, function(data) {
         db.get_friends_info(login, function(friends) {
-            var info = data.Items[0]
-            res.render('profile.ejs', {
-                login: info.login.S,
-                firstname: info.firstname.S,
-                lastname: info.lastname.S,
-                email: info.email.S,
-                affiliation: info.affiliation.S,
-                birthday: info.birthday.S,
-                curr_user: req.session.login,
-                friends: friends,
+            var info = data.Items[0];
+            var postNames = friends.map(elem => elem.friend_login.S);
+            postNames.push(login);
+            db.get_posts(postNames, function(posts) {
+                posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                res.render('profile.ejs', {
+                    login: info.login.S,
+                    firstname: info.firstname.S,
+                    lastname: info.lastname.S,
+                    email: info.email.S,
+                    affiliation: info.affiliation.S,
+                    birthday: info.birthday.S,
+                    curr_user: req.session.login,
+                    friends: friends,
+                    posts: posts,
+                });
             });
         });
     });
@@ -172,17 +178,6 @@ var deleteFriends = function(req, res) {
 /**
  * Routes for wall
  */
-
-var getWall = function(req, res) {
-    let login = req.params.login;
-    db.get_friends(login, function(data) {
-        data.push(login);
-        db.get_posts(data, function(posts) {
-            posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) });
-            res.render('wall.ejs', {posts: posts, login: login});
-        });
-    });
-}
 
 var makePost = function(req, res) {
     let user = req.session.login;
@@ -236,7 +231,6 @@ var routes = {
     check_login: checkLogin,
     signup: signup,
     create_account: createAccount,
-    get_wall: getWall,
     get_homepage: getHomepage,
     get_profile: getProfile,
     get_my_profile: getMyProfile,

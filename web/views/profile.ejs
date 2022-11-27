@@ -67,6 +67,41 @@
 	}
 
 	checkFriends();
+	  
+  function makePost() {
+    $.ajax({
+      type: "POST",
+      url: '/makePost',
+      data: {
+        login: login,
+        message: $('#post-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+            $('#post-warning').hide();
+            location.reload(); // this is temporary
+        } else {
+            $('#post-warning').show();
+        }
+      }
+    });
+  }
+    
+  function makeComment(post_id) {
+    $.ajax({
+      type: "POST",
+      url: '/makeComment',
+      data: {
+        post_id: post_id,
+        message: $('#comment-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+            location.reload(); // this is temporary
+        }
+      }
+    })
+  }
 
 </script>
 <body>
@@ -140,14 +175,50 @@
 				</ul>
 			</div>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<form action="/wall/<%= login %>" method="get">
-					<input type="submit" value="Wall">
-				</form>
-			</div>
-    	</div>
 	</div>
+  <div>
+    <h1>
+        Wall
+    </h1>
+    <div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+    <div>
+      <textarea id="post-message" name="post-message" rows="4" cols="50"></textarea><br>
+      <button id='post-button' class="btn btn-primary" onclick="makePost()">
+        <span id='post-text'>Post</span>
+      </button>
+    </div>
+    <% if (posts.length == 0) { %>
+      <h3>No posts!</h3>
+    <% } else { %>
+      <% posts.forEach(post => { %>
+        <div style="margin: 1cm">
+          <div class="card" style="width: 40rem">
+            <div class="card-body">
+              <p class="card-text"><%= post.message.S %></p>
+              <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
+              <p class="card-text"><%= post.timestamp.S %></p>
+            </div>
+          <div class="card" style="width: 40rem">
+          <textarea id="comment-message" name="comment-message" rows="1" cols="50"></textarea>
+          <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+            <span id='comment-text'>Comment</span>
+          </button>
+          </div>
+          </div>
+            <% post.comments.SS.forEach(comment => { %>
+              <% if (comment != "default") { %>
+                <div class="card" style="width: 40rem">
+                <% const [user, ...message] = comment.split(', '); %>
+                <p class="card-text"><%= message %></p>
+                <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
+                </div>
+              <% } %>
+            <% }); %>
+          </div>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
     
 </body>
 </html>
