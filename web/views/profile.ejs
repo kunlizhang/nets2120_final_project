@@ -77,27 +77,95 @@
         message: $('#post-message').val(),
       },
       success: function(data) {
-        if (data.success) {
+        if (data.result == 0) {
             $('#post-warning').hide();
-            location.reload(); // this is temporary
-        } else {
+            var post = data.data;
+
+            var message = document.createElement("li");
+            var message_temp = document.createElement("div");
+            message_temp.setAttribute("style", "margin: 1cm");
+            var msg_content = document.createElement("div");
+            msg_content.setAttribute("class", "card");
+            msg_content.setAttribute("style", "width: 40rem");
+            var content = document.createElement("div");
+            content.setAttribute("class", "card-body");
+            var text = document.createElement("p");
+            text.setAttribute("class", "card-text");
+            text.innerText = post.message.S;
+            var name = document.createElement("a");
+            name.setAttribute("href", "/profile/" + post.login.S);
+            name.setAttribute("class", "card-text");
+            name.innerText = post.login.S;
+            var time = document.createElement("p");
+            time.setAttribute("class", "card-text");
+            time.innerText = post.timestamp.S;
+            content.appendChild(text);
+            content.appendChild(name);
+            content.appendChild(time);
+            var comment_box = document.createElement("div");
+            comment_box.setAttribute("class", "card");
+            comment_box.setAttribute("style", "width: 40rem");
+            var comment = document.createElement("textarea");
+            comment.setAttribute("id", "comment-message-" + post.post_id.S);
+            comment.setAttribute("name", "comment-message-" + post.post_id.S);
+            comment.setAttribute("rows", "1");
+            comment.setAttribute("cols", "50");
+            var button = document.createElement("button");
+            button.setAttribute("id", post.post_id.S);
+            button.setAttribute("name", post.post_id.S);
+            button.setAttribute("class", "btn btn-primary");
+            button.onclick = function() { makeComment(post.post_id.S) };
+            var btn_span = document.createElement("span");
+            btn_span.setAttribute("id", "comment-text");
+            btn_span.innerText = "Comment"
+            button.appendChild(btn_span);
+            comment_box.appendChild(comment);
+            comment_box.appendChild(button);
+            msg_content.appendChild(content);
+            msg_content.appendChild(comment_box);
+            var comment_list = document.createElement("ul");
+            comment_list.setAttribute("id", "comments-" + post.post_id.S);
+            comment_list.setAttribute("style", "list-style-type: none");
+            message_temp.appendChild(msg_content);
+            message_temp.appendChild(comment_list);
+            message.appendChild(message_temp);
+            $('#posts').prepend(message);
+        } else if (data.result == 1) {
             $('#post-warning').show();
+        } else {
+        	  $('#post-warning').hide();
         }
       }
     });
   }
-    
+  
   function makeComment(post_id) {
     $.ajax({
       type: "POST",
       url: '/makeComment',
       data: {
         post_id: post_id,
-        message: $('#comment-message').val(),
+        message: $('#comment-message-' + post_id).val(),
       },
       success: function(data) {
-        if (data.success) {
-            location.reload(); // this is temporary
+        if (data.result == 0) {
+          const [user, ...message] = data.data.split(', ');
+          
+          var comment = document.createElement("li");
+          var comment_temp = document.createElement("div");
+          comment_temp.setAttribute("class", "card");
+          comment_temp.setAttribute("style", "width: 40rem");
+          var text = document.createElement("p");
+          text.setAttribute("class", "card-text");
+          text.innerText = message;
+          var name = document.createElement("a");
+          name.setAttribute("href", "/profile/" + user);
+          name.setAttribute("class", "card-text");
+          name.innerText = user;
+          comment_temp.appendChild(text);
+          comment_temp.appendChild(name);
+          comment.appendChild(comment_temp);
+          $('#comments-' + post_id).prepend(comment);
         }
       }
     })
@@ -190,33 +258,40 @@
     <% if (posts.length == 0) { %>
       <h3>No posts!</h3>
     <% } else { %>
+      <ul id="posts" style="list-style-type: none">
       <% posts.forEach(post => { %>
-        <div style="margin: 1cm">
-          <div class="card" style="width: 40rem">
-            <div class="card-body">
-              <p class="card-text"><%= post.message.S %></p>
-              <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
-              <p class="card-text"><%= post.timestamp.S %></p>
+        <li>
+          <div style="margin: 1cm">
+            <div class="card" style="width: 40rem">
+              <div class="card-body">
+                <p class="card-text"><%= post.message.S %></p>
+                <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
+                <p class="card-text"><%= post.timestamp.S %></p>
+              </div>
+              <div class="card" style="width: 40rem">
+              <textarea id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>" rows="1" cols="50"></textarea>
+              <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+                <span id='comment-text'>Comment</span>
+              </button>
+              </div>
             </div>
-          <div class="card" style="width: 40rem">
-          <textarea id="comment-message" name="comment-message" rows="1" cols="50"></textarea>
-          <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
-            <span id='comment-text'>Comment</span>
-          </button>
+            <ul id="comments-<%= post.post_id.S %>" style="list-style-type: none">
+              <% post.comments.SS.forEach(comment => { %>
+                  <% if (comment != "default") { %>
+                    <li>
+                      <div class="card" style="width: 40rem">
+                      <% const [user, ...message] = comment.split(', '); %>
+                      <p class="card-text"><%= message %></p>
+                      <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
+                      </div>
+                  </li>
+                <% } %>
+              <% }); %>
+            </ul>
           </div>
-          </div>
-            <% post.comments.SS.forEach(comment => { %>
-              <% if (comment != "default") { %>
-                <div class="card" style="width: 40rem">
-                <% const [user, ...message] = comment.split(', '); %>
-                <p class="card-text"><%= message %></p>
-                <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
-                </div>
-              <% } %>
-            <% }); %>
-          </div>
-        </div>
+        </li>
       <% }); %>
+    </ul>
     <% } %>
   </div>
     

@@ -185,20 +185,25 @@ var makePost = function(req, res) {
     if (!user) {
         res.redirect('/');
     } else {
-        if (user == login) {
-            db.add_post(user, req.body.message, new Date().toJSON(), function(data) {
-                res.send({success: true, data: data});
-            });
+        let message = req.body.message.trim();
+        if (message == null || message == "") {
+            res.send({result: 2});
         } else {
-            db.verify_friends(user, login, function(data) {
-                if (data.Count > 0) {
-                    db.add_post(user, req.body.message, new Date().toJSON(), function(data) {
-                        res.send({success: true, data: data});
-                    });
-                } else {
-                    res.send({success: false});
-                }
-            });
+            if (user == login) {
+                db.add_post(user, message, new Date().toJSON(), function(post) {
+                    res.send({result: 0, data: post});
+                });
+            } else {
+                db.verify_friends(user, login, function(data) {
+                    if (data.Count > 0) {
+                        db.add_post(user, message, new Date().toJSON(), function(post) {
+                            res.send({result: 0, data: post});
+                        });
+                    } else {
+                        res.send({result: 1});
+                    }
+                });
+            }
         }
     }
 }
@@ -208,9 +213,14 @@ var makeComment = function(req, res) {
     if (!user) {
         res.redirect('/');
     } else {
-        db.add_comment(user, req.body.post_id, req.body.message, function(data) {
-            res.send({success: true, data: data});
-        });
+        let comment = req.body.message.trim();
+        if (comment == null || comment == "") {
+            res.send({result: 2});
+        } else {
+            db.add_comment(user, req.body.post_id, comment, function(data) {
+                res.send({result: 0, data: data});
+            });
+        }
     }
 }
 

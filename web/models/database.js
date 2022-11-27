@@ -337,7 +337,7 @@ var addPost = function(login, message, timestamp, callback) {
         if (err) {
             console.log(err);
         } else {
-            callback(data);
+            callback(params.Item);
         }
     });
 }
@@ -360,7 +360,7 @@ var addComment = function(login, post_id, message, callback) {
         if (err) {
             console.log(err);
         } else {
-            callback(data);
+            callback(value);
         }
     });
 }
