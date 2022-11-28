@@ -138,6 +138,7 @@ var getProfile = function(req, res) {
                     email: info.email.S,
                     affiliation: info.affiliation.S,
                     birthday: info.birthday.S,
+                    interests: info.interests.SS,
                     curr_user: req.session.login,
                     friends: friends,
                     posts: posts,
