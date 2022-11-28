@@ -165,14 +165,14 @@ var addFriends = function(req, res) {
     var login1 = req.body.login1;
     var login2 = req.body.login2; 
 
-    db.add_friend(login1, login2, function() {res.send()});
+    db.add_friend(login1, login2, new Date().toJSON(), function() {res.send({})});
 }
 
 var deleteFriends = function(req, res) {
     var login1 = req.body.login1;
     var login2 = req.body.login2;
 
-    db.delete_friend(login1, login2, function() {res.send()});
+    db.delete_friend(login1, login2, function() {res.send({})});
 }
 
 /**

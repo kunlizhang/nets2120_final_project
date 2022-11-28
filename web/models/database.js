@@ -195,11 +195,12 @@ var verifyFriends = function(login1, login2, callback) {
     });
 }
 
-var addFriends = function(login1, login2, callback) {
+var addFriends = function(login1, login2, timestamp, callback) {
     var params = {
         Item: {
             'login': { S: login1 },
-            'friend_login': { S: login2 }
+            'friend_login': { S: login2 },
+            'timestamp': { S: timestamp },
         },
         TableName: 'friend',
         ReturnValues: 'NONE'
@@ -212,7 +213,8 @@ var addFriends = function(login1, login2, callback) {
             var params = {
                 Item: {
                     'login': { S: login2 },
-                    'friend_login': { S: login1 }
+                    'friend_login': { S: login1 },
+                    'timestamp': { S: timestamp },
                 },
                 TableName: 'friend',
                 ReturnValues: 'NONE'
@@ -233,7 +235,7 @@ var deleteFriends = function(login1, login2, callback) {
     var params = {
         Key: {
             'login': { S: login1 },
-            'friend_login': { S: login2} ,
+            'friend_login': { S: login2 },
         },
         TableName: 'friend'
     }

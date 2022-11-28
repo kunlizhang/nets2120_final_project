@@ -28,6 +28,11 @@
 					document.getElementById('friend-icon').className = "bi bi-person-fill-check";
 					document.getElementById('friend-button').className = "btn btn-secondary";
 					are_friends = true;
+				} else {
+					are_friends = false;
+          document.getElementById('friend-text').innerHTML = "Add Friend";
+          document.getElementById('friend-icon').className = "bi bi-person-fill-add";
+          document.getElementById('friend-button').className = "btn btn-primary";
 				}
 			}
 		});
