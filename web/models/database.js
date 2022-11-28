@@ -165,6 +165,95 @@ var searchUser = function(keyword, callback) {
     });
 }
 
+var changeEmail = function(login, email, callback) {
+    var params = {
+        Key: {
+            'login': { S: login }
+        },
+        TableName: 'user',
+        UpdateExpression: 'set email = :e',
+        ExpressionAttributeValues: {
+            ':e': { S: email }
+        },
+        ReturnValues: 'NONE'
+    };
+
+    db.updateItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var changePassword = function(login, password, callback) {
+    var params = {
+        Key: {
+            'login': { S: login }
+        },
+        TableName: 'user',
+        UpdateExpression: 'set password = :p',
+        ExpressionAttributeValues: {
+            ':p': { S: hash(password) }
+        },
+        ReturnValues: 'NONE'
+    };
+
+    db.updateItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var changeAffiliation = function(login, affiliation, callback) {
+    var params = {
+        Key: {
+            'login': { S: login }
+        },
+        TableName: 'user',
+        UpdateExpression: 'set affiliation = :a',
+        ExpressionAttributeValues: {
+            ':a': { S: affiliation }
+        },
+        ReturnValues: 'NONE'
+    };
+    
+    db.updateItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var changeInterests = function(login, interests, callback) {
+    var params = {
+        Key: {
+            'login': { S: login }
+        },
+        TableName: 'user',
+        UpdateExpression: 'set interests = :i',
+        ExpressionAttributeValues: {
+            ':i': { SS: interests }
+        },
+        ReturnValues: 'NONE'
+    };
+
+    db.updateItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+
 /**
  * FRIEND database queries
  */
@@ -284,6 +373,10 @@ var getFriendsInfo = function(login, callback) {
     });
 }
 
+/**
+ * Wall posting database queries
+ */
+
 var getPosts = function(users, callback) {
     let promises = [];
     users.forEach(user => {
@@ -373,14 +466,18 @@ var database = {
     verify_user: verifyUser,
     get_user_info: getUserInfo,
     search_user: searchUser,
+    change_affiliation: changeAffiliation,
+    change_password: changePassword,
+    change_email: changeEmail,
+    change_interests: changeInterests,
     verify_friends: verifyFriends,
     add_friend: addFriends,
     delete_friend: deleteFriends,
     get_friends_info: getFriendsInfo,
     get_posts: getPosts,
     add_post: addPost,
+    delete_post: deletePost,
     add_comment: addComment,
-
 };
 
 module.exports = database;
