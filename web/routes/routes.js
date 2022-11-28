@@ -44,8 +44,12 @@ const categories = ["Crime", "Entertainment", "World News", "Impact", "Politics"
                     "Money", "Environment", "Culture & Arts"];
 // Signup page
 var signup = function(req, res) {
-    var error = req.query.error ? req.query.error: "";
-    res.render('signup.ejs', { error: error, categories: categories});
+    if (req.session.login) {
+        res.redirect('/homepage');
+    } else {
+        var error = req.query.error ? req.query.error: "";
+        res.render('signup.ejs', { error: error, categories: categories});
+    }
 }
 
 // Create an account
