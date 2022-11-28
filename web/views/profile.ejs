@@ -10,6 +10,7 @@
 <script>
 	var curr_user = '<%= curr_user %>';
 	var login = '<%= login %>';
+	var friendsList = [];
 	var mostRecentPost;
 
 	var are_friends = false;
@@ -70,6 +71,45 @@
 				}
 			})
 		}
+	}
+	
+	function updateFriendList() {
+		$.ajax({
+      type: "POST",
+      url: '/getFriends',
+      data: {
+        login: login
+      },
+      success: function(data) {
+    	  let updatedFriends = data.friends;
+    	  console.log("1");
+    	  console.log(updatedFriends);
+    	  console.log("2");
+    	  console.log(friendsList);
+    	  for (var i = 0; i < friendsList.length; i++) {
+    		  let friend = friendsList[i];
+    		  if (!updatedFriends.includes(friend)) {
+    			  $('#friend-' + friend).remove();
+            friendsList.splice(i, 1);
+            i--;
+          }
+    		}
+    	  updatedFriends.forEach(friend => {
+    		  if (!friendsList.includes(friend)) {    	          
+  	        var newFriend = document.createElement("li");
+  	        newFriend.setAttribute("id", "friend-" + friend);
+  	        var text = document.createElement("a");
+  	        text.setAttribute("href", "/profile/" + friend);
+  	        text.innerText = friend;
+  	        newFriend.appendChild(text);
+  	        $('#friendlist').prepend(newFriend);
+  			    friendsList.push(friend);
+    		  }
+    	  });
+    	  console.log("3");
+    	  console.log(friendsList);
+      }
+    })
 	}
 	
 	function makePostHelper(msg, login, timestamp, post_id) {
@@ -218,9 +258,11 @@
 	  mostRecentPost = $('ul#posts li:first').find("#timestamp").text();
 	  
 	  checkFriends();
+	  updateFriendList();
 	  refreshPosts();
 	  setInterval(function() {
 		  checkFriends();
+		  updateFriendList();
 		  refreshPosts();
 	  }, 10000);
   });
@@ -286,9 +328,9 @@
 				Friends
 			</div>
 			<div class="col-sm-4">
-				<ul>
+				<ul id="friendlist">
 					<% for (var i = 0; i < friends.length; i++) { %>
-					<li>
+					<li id="friend-<%= friends[i].friend_login.S %>">
 						<a href="/profile/<%= friends[i].friend_login.S %>">
 							<%= friends[i].friend_login.S %>
 						</a>

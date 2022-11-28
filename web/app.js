@@ -52,6 +52,7 @@ app.get('/logout', routes.logout_user);
  app.get('/profile', routes.get_my_profile);
  app.get('/profile/:login', routes.get_profile);
  app.post('/getFriendStatus', routes.get_friend_status);
+ app.post('/getFriends', routes.get_friends);
  app.post('/addFriend', routes.add_friend);
  app.post('/deleteFriend', routes.delete_friend);
 
