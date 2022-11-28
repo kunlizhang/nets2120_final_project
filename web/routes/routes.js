@@ -123,29 +123,33 @@ var getMyProfile = function(req, res) {
 
 // Generates profile page
 var getProfile = function(req, res) {
-    var login = req.params.login;
-    db.get_user_info(login, function(data) {
-        db.get_friends_info(login, function(friends) {
-            var info = data.Items[0];
-            var postNames = friends.map(elem => elem.friend_login.S);
-            postNames.push(login);
-            db.get_posts(postNames, function(posts) {
-                posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
-                res.render('profile.ejs', {
-                    login: info.login.S,
-                    firstname: info.firstname.S,
-                    lastname: info.lastname.S,
-                    email: info.email.S,
-                    affiliation: info.affiliation.S,
-                    birthday: info.birthday.S,
-                    interests: info.interests.SS,
-                    curr_user: req.session.login,
-                    friends: friends,
-                    posts: posts,
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        var login = req.params.login;
+        db.get_user_info(login, function(data) {
+            db.get_friends_info(login, function(friends) {
+                var info = data.Items[0];
+                var postNames = friends.map(elem => elem.friend_login.S);
+                postNames.push(login);
+                db.get_posts(postNames, function(posts) {
+                    posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                    res.render('profile.ejs', {
+                        login: info.login.S,
+                        firstname: info.firstname.S,
+                        lastname: info.lastname.S,
+                        email: info.email.S,
+                        affiliation: info.affiliation.S,
+                        birthday: info.birthday.S,
+                        interests: info.interests.SS,
+                        curr_user: req.session.login,
+                        friends: friends,
+                        posts: posts,
+                    });
                 });
             });
         });
-    });
+    }
 }
 
 var getFriends = function(req, res) {
@@ -301,7 +305,21 @@ var getHomepage = function(req, res) {
     if (!req.session.login) {
         res.redirect('/');
     } else {
-        res.render('homepage.ejs');
+        var login = req.session.login;
+        db.get_user_info(login, function(data) {
+            db.get_friends_info(login, function(friends) {
+                var info = data.Items[0];
+                var postNames = friends.map(elem => elem.friend_login.S);
+                postNames.push(login);
+                db.get_posts(postNames, function(posts) {
+                    posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                    res.render('homepage.ejs', {
+                        login: info.login.S,
+                        posts: posts,
+                    });
+                });
+            });
+        });
     }
 }
 
