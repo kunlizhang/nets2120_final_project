@@ -372,57 +372,63 @@
 				</ul>
 			</div>
 		</div>
+		<h1>
+			Wall
+		</h1>
+		<div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+		<div>
+		  <textarea class="form-control" id="post-message" name="post-message" rows="4" cols="50"></textarea>
+		  <button id='post-button' class="btn btn-primary mt-1" onclick="makePost()">
+			<span id='post-text'>Post</span>
+		  </button>
+		</div>
+		<% if (posts.length == 0) { %>
+		  <h3>No posts!</h3>
+		<% } else { %>
+		  	<ul id="posts" style="list-style-type: none">
+		  	<% posts.forEach(post => { %>
+				<li>
+				<div id="post-<%= post.post_id.S %>" class="mt-4">
+					<div class="card col-md">
+						<div class="card-body">
+							<a id="user" href='/profile/<%= post.login.S %>' class="card-title h5"><%= post.login.S %></a>
+							<p class="card-text"><%= post.message.S %></p>
+							<p id="timestamp" class="card-text"><%= post.timestamp.S %></p>
+							<ul id="comments-<%= post.post_id.S %>" style="list-style-type: none" class="mb-2">
+								<% post.comments.SS.forEach(comment => { %>
+									<% if (comment != "default") { %>
+									<li>
+										<div class="card col-sm">
+											<% const [user, ...message] = comment.split(', '); %>
+											<p class="card-text"><%= message %></p>
+											<a href='/profile/<%= user %>' class="card-text"><%= user %></a>
+										</div>
+									</li>
+									<% } %>
+								<% }); %>
+							</ul>
+							<form>
+								<div class="form-row">
+									<div class="col">
+										<input type='text' class='form-control' id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>"></input>
+									</div>
+									<div class="col-2">
+										<button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+											<span id='comment-text'>Comment</span>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					
+				</li>
+			<% }); %>
+			</ul>
+		<% } %>
 	</div>
-  <div>
-    <h1>
-        Wall
-    </h1>
-    <div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
-    <div>
-      <textarea id="post-message" name="post-message" rows="4" cols="50"></textarea><br>
-      <button id='post-button' class="btn btn-primary" onclick="makePost()">
-        <span id='post-text'>Post</span>
-      </button>
-    </div>
-    <% if (posts.length == 0) { %>
-      <h3>No posts!</h3>
-    <% } else { %>
-      <ul id="posts" style="list-style-type: none">
-      <% posts.forEach(post => { %>
-        <li>
-          <div id="post-<%= post.post_id.S %>" style="margin: 1cm">
-            <div class="card" style="width: 40rem">
-              <div class="card-body">
-                <p class="card-text"><%= post.message.S %></p>
-                <a id="user" href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
-                <p id="timestamp" class="card-text"><%= post.timestamp.S %></p>
-              </div>
-              <div class="card" style="width: 40rem">
-              <textarea id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>" rows="1" cols="50"></textarea>
-              <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
-                <span id='comment-text'>Comment</span>
-              </button>
-              </div>
-            </div>
-            <ul id="comments-<%= post.post_id.S %>" style="list-style-type: none">
-              <% post.comments.SS.forEach(comment => { %>
-                  <% if (comment != "default") { %>
-                    <li>
-                      <div class="card" style="width: 40rem">
-                      <% const [user, ...message] = comment.split(', '); %>
-                      <p class="card-text"><%= message %></p>
-                      <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
-                      </div>
-                  </li>
-                <% } %>
-              <% }); %>
-            </ul>
-          </div>
-        </li>
-      <% }); %>
-    </ul>
-    <% } %>
-  </div>
+	
+    
     
 </body>
 <script>
