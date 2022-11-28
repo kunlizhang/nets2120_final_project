@@ -40,7 +40,7 @@
 				<% for (user of users) {%>
 				<tr>
 					<td>
-						<a href='/profile/<%=user.login.S%>''><%= user.fullname.S %></a>
+						<a href='/profile/<%=user.login.S%>''><%= user.fullname.S %> (<%= user.login.S %>)</a>
 					</td>
 				</tr>
 				<% } %>
