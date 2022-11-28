@@ -476,7 +476,6 @@ var database = {
     get_friends_info: getFriendsInfo,
     get_posts: getPosts,
     add_post: addPost,
-    delete_post: deletePost,
     add_comment: addComment,
 };
 
