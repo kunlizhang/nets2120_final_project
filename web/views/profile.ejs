@@ -32,15 +32,15 @@
 			dataType: 'json',
 			success: function(data) {
 				if (data.friends) {
-					document.getElementById('friend-text').innerHTML = "Friends";
-					document.getElementById('friend-icon').className = "bi bi-person-fill-check";
-					document.getElementById('friend-button').className = "btn btn-secondary";
+					document.getElementById('friend_text').innerHTML = "Friends";
+					document.getElementById('friend_icon').className = "bi bi-person-fill-check";
+					document.getElementById('friend_button').className = "btn btn-secondary";
 					are_friends = true;
 				} else {
 					are_friends = false;
-          document.getElementById('friend-text').innerHTML = "Add Friend";
-          document.getElementById('friend-icon').className = "bi bi-person-fill-add";
-          document.getElementById('friend-button').className = "btn btn-primary";
+          document.getElementById('friend_text').innerHTML = "Add Friend";
+          document.getElementById('friend_icon').className = "bi bi-person-fill-add";
+          document.getElementById('friend_button').className = "btn btn-primary";
 				}
 			}
 		});
@@ -57,9 +57,9 @@
 				},
 				success: function(data) {
 					are_friends = false;
-					document.getElementById('friend-text').innerHTML = "Add Friend";
-					document.getElementById('friend-icon').className = "bi bi-person-fill-add";
-					document.getElementById('friend-button').className = "btn btn-primary";
+					document.getElementById('friend_text').innerHTML = "Add Friend";
+					document.getElementById('friend_icon').className = "bi bi-person-fill-add";
+					document.getElementById('friend_button').className = "btn btn-primary";
 					$('#friend-' + curr_user).remove();
 					const index = friendsList.indexOf(curr_user);
 					if (index > -1) {
@@ -76,9 +76,9 @@
 					login2: login,
 				},
 				success: function(data) {
-					document.getElementById('friend-text').innerHTML = "Friends";
-					document.getElementById('friend-icon').className = "bi bi-person-fill-check";
-					document.getElementById('friend-button').className = "btn btn-secondary";
+					document.getElementById('friend_text').innerHTML = "Friends";
+					document.getElementById('friend_icon').className = "bi bi-person-fill-check";
+					document.getElementById('friend_button').className = "btn btn-secondary";
 					addFriendHelper(curr_user);
 					are_friends = true;
 				}
@@ -184,18 +184,18 @@
       url: '/makePost',
       data: {
         login: login,
-        message: $('#post-message').val(),
+        message: $('#post_message').val(),
       },
       success: function(data) {
         if (data.result == 0) {
-            $('#post-warning').hide();
+            $('#post_warning').hide();
             var post = data.data;
             makePostHelper(post.message.S, post.login.S, post.timestamp.S, post.post_id.S);
             mostRecentPost = post.timestamp.S;
         } else if (data.result == 1) {
-            $('#post-warning').show();
+            $('#post_warning').show();
         } else {
-        	  $('#post-warning').hide();
+        	  $('#post_warning').hide();
         }
       }
     });
@@ -329,9 +329,9 @@
 			</div>
 			<% if (curr_user !== login) { %>
 			<div class="col-sm">
-				<button id='friend-button' style="float: right;" class="btn btn-primary" onclick="toggleFriends()">
-					<i id='friend-icon' class="bi bi-person-fill-add"></i>
-					<span id='friend-text'>Add Friend</span>
+				<button id='friend_button' style="float: right;" class="btn btn-primary" onclick="toggleFriends()">
+					<i id='friend_icon' class="bi bi-person-fill-add"></i>
+					<span id='friend_text'>Add Friend</span>
 				</button>
 			</div>
 			<% } %>
@@ -429,11 +429,11 @@
 		<h1>
 			Wall
 		</h1>
-		<div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+		<div id="post_warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
 		<div>
-		  <textarea class="form-control" id="post-message" name="post-message" rows="4" cols="50"></textarea>
-		  <button id='post-button' class="btn btn-primary mt-1" onclick="makePost()">
-			<span id='post-text'>Post</span>
+		  <textarea class="form-control" id="post_message" name="post_message" rows="4" cols="50"></textarea>
+		  <button id='post_button' class="btn btn-primary mt-1" onclick="makePost()">
+			<span id='post_text'>Post</span>
 		  </button>
 		</div>
 		<% if (posts.length == 0) { %>
@@ -481,7 +481,6 @@
 			</ul>
 		<% } %>
 	</div>
-
 </body>
 <script>
 	function setInterests() {

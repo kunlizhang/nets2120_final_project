@@ -73,18 +73,18 @@
       url: '/makePost',
       data: {
         login: login,
-        message: $('#post-message').val(),
+        message: $('#post_message').val(),
       },
       success: function(data) {
         if (data.result == 0) {
-            $('#post-warning').hide();
+            $('#post_warning').hide();
             var post = data.data;
             makePostHelper(post.message.S, post.login.S, post.timestamp.S, post.post_id.S);
             mostRecentPost = post.timestamp.S;
         } else if (data.result == 1) {
-            $('#post-warning').show();
+            $('#post_warning').show();
         } else {
-            $('#post-warning').hide();
+            $('#post_warning').hide();
         }
       }
     });
@@ -192,11 +192,11 @@
 		<h1>
 			Welcome to PennBook!
 		</h1>
-    <div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+    <div id="post_warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
     <div>
-      <textarea class="form-control" id="post-message" name="post-message" rows="4" cols="50"></textarea>
-      <button id='post-button' class="btn btn-primary mt-1" onclick="makePost()">
-      <span id='post-text'>Post</span>
+      <textarea class="form-control" id="post_message" name="post_message" rows="4" cols="50"></textarea>
+      <button id='post_button' class="btn btn-primary mt-1" onclick="makePost()">
+      <span id='post_text'>Post</span>
       </button>
     </div>
     <% if (posts.length == 0) { %>
