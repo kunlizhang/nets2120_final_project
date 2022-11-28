@@ -306,21 +306,19 @@ var makeComment = function(req, res) {
  */
 
 var getHomepage = function(req, res) {
-    if (!req.session.login) {
+    let login = req.session.login;
+    if (!login) {
         res.redirect('/');
     } else {
-        var login = req.session.login;
-        db.get_user_info(login, function(data) {
-            db.get_friends_info(login, function(friends) {
-                var info = data.Items[0];
-                var postNames = friends.map(elem => elem.friend_login.S);
-                postNames.push(login);
-                db.get_posts(postNames, function(posts) {
-                    posts.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
-                    res.render('homepage.ejs', {
-                        login: info.login.S,
-                        posts: posts,
-                    });
+        db.get_friends_info(login, function(friends) {
+            var postNames = friends.map(elem => elem.friend_login.S);
+            postNames.push(login);
+            db.get_posts(postNames, function(posts) {
+                let events = posts.concat(friends);
+                events.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                res.render('homepage.ejs', {
+                    login: login,
+                    posts: events,
                 });
             });
         });
