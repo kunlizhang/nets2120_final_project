@@ -14,15 +14,17 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mr-auto">
-				<li class="nav-item active">
+				<li class="nav-item">
 					<a class="nav-link" href="/homepage">Home <span class="sr-only">(current)</span></a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="#">Link</a>
+				<li class="nav-item ">
+					<a class="nav-link" href="/createChat">Start Chat<span class="sr-only">(current)</span></a>
 				</li>
 			</ul>
-			<form class="form-inline my-2 my-lg-0" action="/search" method="post">
-				<input class="form-control mr-sm-2" type="search" name="keyword" placeholder="Search people" aria-label="Search">
+			<form class="form-inline my-2 my-lg-0" action="/search" method="post" autocomplete="off">
+				<span class="autocomplete">
+					<input id="user-search" class="form-control mr-sm-2" type="search" name="keyword" placeholder="Search people" aria-label="Search">
+				</span>
 				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 			</form>
 			<a class="nav-link" href="/profile">My Profile</a>
