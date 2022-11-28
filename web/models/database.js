@@ -47,23 +47,28 @@ var addUser = function(login, password, firstname, lastname, email, affiliation,
 
 // Adds a user to the search table. Called by addUser.
 var addUserSearch = function(login, firstname, lastname, callback) {
-    var params = {
-        Item: {
-            'name_c': { S: firstname.charAt(0).toLowerCase()},
-            'fullname': { S: firstname.toLowerCase() + " " + lastname.toLowerCase()},
-            'login': { S: login}
-        },
-        TableName: "user_search",
-        ReturnValues: 'NONE'
-    };
+    var puts = [];
+    var fullname = firstname + ' ' + lastname;
 
-    db.putItem(params, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            callback();
-        }
-    })
+    for (var i = 1; i <= fullname.length; i++) {
+        var keyword = fullname.substring(0, i).toLowerCase();
+
+        var params = {
+            Item: {
+                'substring': { S: keyword},
+                'fullname': { S: fullname},
+                'login': { S: login}
+            },
+            TableName: "user_search",
+            ReturnValues: 'NONE'
+        };
+
+        puts.push(db.putItem(params).promise());
+    }
+
+    Promise.all(puts).then(function() {
+        callback();
+    });
 }
 
 // Verifies if a given login password combination is correct
@@ -143,13 +148,9 @@ var getUserInfo = function(login, callback) {
 var searchUser = function(keyword, callback) {
     var params = {
         KeyConditions: {
-            name_c: {
+            substring: {
                 ComparisonOperator: 'EQ',
-                AttributeValueList: [ { S: keyword.charAt(0)} ]
-            },
-            fullname: {
-                ComparisonOperator: 'BEGINS_WITH',
-                AttributeValueList: [ { S: keyword } ]
+                AttributeValueList: [ { S: keyword} ]
             }
         },
         TableName: 'user_search',
