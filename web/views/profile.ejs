@@ -16,6 +16,7 @@
 <script>
 	var curr_user = '<%= curr_user %>';
 	var login = '<%= login %>';
+	var friendsList = [];
 	var mostRecentPost;
 	var interests = <%- JSON.stringify(interests) %>;
 
@@ -59,6 +60,11 @@
 					document.getElementById('friend-text').innerHTML = "Add Friend";
 					document.getElementById('friend-icon').className = "bi bi-person-fill-add";
 					document.getElementById('friend-button').className = "btn btn-primary";
+					$('#friend-' + curr_user).remove();
+					const index = friendsList.indexOf(curr_user);
+					if (index > -1) {
+					  friendsList.splice(index, 1);
+					}
 				}
 			})
 		} else {
@@ -73,10 +79,48 @@
 					document.getElementById('friend-text').innerHTML = "Friends";
 					document.getElementById('friend-icon').className = "bi bi-person-fill-check";
 					document.getElementById('friend-button').className = "btn btn-secondary";
+					addFriendHelper(curr_user);
 					are_friends = true;
 				}
 			})
 		}
+	}
+	
+	function addFriendHelper(friend) {
+		var newFriend = document.createElement("li");
+    newFriend.setAttribute("id", "friend-" + friend);
+    var text = document.createElement("a");
+    text.setAttribute("href", "/profile/" + friend);
+    text.innerText = friend;
+    newFriend.appendChild(text);
+    $('#friendlist').prepend(newFriend);
+    friendsList.push(friend);
+	}
+	
+	function updateFriendList() {
+		$.ajax({
+      type: "POST",
+      url: '/getFriends',
+      data: {
+        login: login
+      },
+      success: function(data) {
+    	  let updatedFriends = data.friends;
+    	  for (var i = 0; i < friendsList.length; i++) {
+    		  let friend = friendsList[i];
+    		  if (!updatedFriends.includes(friend)) {
+    			  $('#friend-' + friend).remove();
+            friendsList.splice(i, 1);
+            i--;
+          }
+    		}
+    	  updatedFriends.forEach(friend => {
+    		  if (!friendsList.includes(friend)) {    	          
+  	        addFriendHelper(friend);
+    		  }
+    	  });
+      }
+    })
 	}
 	
 	function makePostHelper(msg, login, timestamp, post_id) {
@@ -223,11 +267,21 @@
   
   $(document).ready(function() {
 	  mostRecentPost = $('ul#posts li:first').find("#timestamp").text();
+	  let currFriends = $('ul#friendlist li')
+	  currFriends.each(function(idx, li) {
+		  friendsList.push($(li).find('a').text().trim());
+	  });
 	  
-	  checkFriends();
+	  if (curr_user != login) {
+	    checkFriends();
+	  }
+	  updateFriendList();
 	  refreshPosts();
 	  setInterval(function() {
-		  checkFriends();
+		  if (curr_user != login) {
+			  checkFriends();
+	    }
+		  updateFriendList();
 		  refreshPosts();
 	  }, 10000);
   });
@@ -361,9 +415,9 @@
 				Friends
 			</div>
 			<div class="col-sm-4">
-				<ul>
+				<ul id="friendlist">
 					<% for (var i = 0; i < friends.length; i++) { %>
-					<li>
+					<li id="friend-<%= friends[i].friend_login.S %>">
 						<a href="/profile/<%= friends[i].friend_login.S %>">
 							<%= friends[i].friend_login.S %>
 						</a>
@@ -434,7 +488,7 @@
 <script>
 	function setInterests() {
 		$('.selectpicker').selectpicker('val', interests);
-		console.log(interests);
+		//console.log(interests);
 	}
 
 	setInterests();
@@ -447,7 +501,7 @@
 			type: 'POST',
 			data: {interests: interests},
 			success: function(result) {
-				console.log(result);
+				//console.log(result);
 			}
 		});
 	});

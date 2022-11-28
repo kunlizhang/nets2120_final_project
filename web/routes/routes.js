@@ -148,6 +148,13 @@ var getProfile = function(req, res) {
     });
 }
 
+var getFriends = function(req, res) {
+    var login = req.body.login;
+    db.get_friends_info(login, function(friends) {
+        res.send({friends: friends.map(elem => elem.friend_login.S)});
+    });
+}
+
 // Get friend status
 var getFriendStatus = function(req, res) {
     var login1 = req.body.login1;
@@ -320,6 +327,7 @@ var routes = {
     make_post: makePost,
     make_comment: makeComment,
     get_posts: getPosts,
+    get_friends: getFriends,
 };
 
 module.exports = routes;
