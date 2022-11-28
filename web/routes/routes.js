@@ -172,31 +172,48 @@ var deleteFriends = function(req, res) {
 
 var changeAffiliation = function(req, res) {
     var login = req.session.login;
-    var affiliation = req.body.affiliation; // TODO: implement as form in profile
+    var affiliation = req.body.affiliation; 
 
-    db.change_affiliation(login, affiliation, function() {res.redirect("/profile")}); // TODO: make status update
+    db.change_affiliation(login, affiliation, function() {
+        db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
+            res.redirect("/profile")
+        });
+    }); 
 }
 
 var changeEmail = function(req, res) {
     var login = req.session.login;
-    var email = req.body.email; // TODO: implement as form in profile
+    var email = req.body.email; 
 
     db.change_email(login, email, function() {res.redirect("/profile")}); 
 }
 
 var changePassword = function(req, res) {
     var login = req.session.login;
-    var password = req.body.password; // TODO: implement as form in profile
+    var password = req.body.password; 
 
     db.change_password(login, password, function() {res.redirect("/profile")});
 }
 
 var changeInterests = function(req, res) {
     var login = req.session.login;
-    var interests = req.body.interests; // TODO: implement as form in profile
+    var interests = req.body.interests; 
 
-    db.change_interests(login, interests, function() {res.redirect("/profile")}); // TODO: make status update
+    var old_interests;
+
+    db.get_user_info(login, function(data) {
+        old_interests = data.Items[0].interests.SS;
+        db.change_interests(login, interests, function() {
+            for (var new_interest of interests) {
+                if (old_interests.indexOf(new_interest) == -1) {
+                    db.add_post(login, login + " added " + new_interest + " to their interests", new Date().toJSON(), function() {});
+                }
+            }
+            res.redirect("/profile");
+        });
+    }); 
 }
+
 
 
 /**

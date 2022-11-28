@@ -226,6 +226,18 @@
 		$('.selectpicker').selectpicker('val', interests);
 		console.log(interests);
 	}
+
+	$('.selectpicker').on('changed.bs.select', function (e) {
+		var interests = $('.selectpicker').val();
+		$.ajax({
+			url: '/changeInterests',
+			type: 'POST',
+			data: {interests: interests},
+			success: function(result) {
+				console.log(result);
+			}
+		});
+	});
 	
 	setInterests();
 </script>

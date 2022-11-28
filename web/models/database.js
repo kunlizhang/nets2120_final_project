@@ -455,6 +455,25 @@ var addPost = function(login, message, timestamp, callback) {
     });
 }
 
+var deletePost = function(login, post_id, callback) {
+    var params = {
+        Key: {
+            'login': { S: login },
+            'post_id': { S: post_id },
+        },
+        TableName: 'posts'
+    }
+
+    db.deleteItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+
 var addComment = function(login, post_id, message, callback) {
     let value = login.concat(", ", message);
     var params = {
@@ -495,6 +514,7 @@ var database = {
     get_friends_info: getFriendsInfo,
     get_posts: getPosts,
     add_post: addPost,
+    delete_post: deletePost,
     add_comment: addComment,
 };
 
