@@ -56,8 +56,8 @@ var addUserSearch = function(login, firstname, lastname, callback) {
         var params = {
             Item: {
                 'substring': { S: keyword},
+                'login': { S: login},
                 'fullname': { S: fullname},
-                'login': { S: login}
             },
             TableName: "user_search",
             ReturnValues: 'NONE'
