@@ -107,6 +107,16 @@
 		    <artifactId>livy-client-http</artifactId>
 		    <version>0.7.0-incubating</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.opennlp</groupId>
+		    <artifactId>opennlp-tools</artifactId>
+		    <version>1.9.3</version>
+      </dependency>
+      <dependency>
+		    <groupId>org.json</groupId>
+		    <artifactId>json</artifactId>
+		    <version>20220924</version>
+		</dependency>
 	</dependencies>
 	<pluginRepositories>
 		<pluginRepository>
@@ -241,6 +251,17 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<executions>
+					<execution>
+						<id>loader</id>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>edu.upenn.cis.nets2120.g36.loader.NewsLoader</mainClass>
+							<arguments>
+							</arguments>
+						</configuration>
+					</execution>
 					<execution>
 						<id>local</id>
 						<goals>
