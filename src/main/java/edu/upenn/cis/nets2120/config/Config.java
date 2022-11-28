@@ -11,6 +11,7 @@ package edu.upenn.cis.nets2120.config;
  *
  */
 public class Config {
+	public static String LOCAL_NEWS_DATA_PATH = "files/test_news.txt";
 	
 	public static String LOCAL_SPARK = "local[*]";
 

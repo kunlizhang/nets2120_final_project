@@ -1,0 +1,28 @@
+USER alberto
+USER dan
+USER jordan
+USER kunli
+ARTICLE 1
+ARTICLE 2
+ARTICLE 3
+CATEGORY a
+CATEGORY b
+CATEGORY c
+LIKE alberto 2
+LIKE alberto 3
+LIKE dan 1
+LIKE dan 2
+LIKE jordan 1
+LIKE kunli 2
+FRIEND dan jordan
+FRIEND dan alberto
+FRIEND kunli alberto
+TOPIC 1 a
+TOPIC 1 b
+TOPIC 2 a
+TOPIC 3 c
+SUBSCRIBE dan a
+SUBSCRIBE jordan a
+SUBSCRIBE jordan b
+SUBSCRIBE alberto c
+SUBSCRIBE kunli c
