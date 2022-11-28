@@ -138,6 +138,7 @@ var getProfile = function(req, res) {
                     email: info.email.S,
                     affiliation: info.affiliation.S,
                     birthday: info.birthday.S,
+                    interests: info.interests.SS,
                     curr_user: req.session.login,
                     friends: friends,
                     posts: posts,
@@ -181,6 +182,52 @@ var deleteFriends = function(req, res) {
 
     db.delete_friend(login1, login2, function() {res.send({})});
 }
+
+var changeAffiliation = function(req, res) {
+    var login = req.session.login;
+    var affiliation = req.body.affiliation; 
+
+    db.change_affiliation(login, affiliation, function() {
+        db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
+            res.redirect("/profile")
+        });
+    }); 
+}
+
+var changeEmail = function(req, res) {
+    var login = req.session.login;
+    var email = req.body.email; 
+
+    db.change_email(login, email, function() {res.redirect("/profile")}); 
+}
+
+var changePassword = function(req, res) {
+    var login = req.session.login;
+    var password = req.body.password; 
+
+    db.change_password(login, password, function() {res.redirect("/profile")});
+}
+
+var changeInterests = function(req, res) {
+    var login = req.session.login;
+    var interests = req.body.interests; 
+
+    var old_interests;
+
+    db.get_user_info(login, function(data) {
+        old_interests = data.Items[0].interests.SS;
+        db.change_interests(login, interests, function() {
+            for (var new_interest of interests) {
+                if (old_interests.indexOf(new_interest) == -1) {
+                    db.add_post(login, login + " added " + new_interest + " to their interests", new Date().toJSON(), function() {});
+                }
+            }
+            res.redirect("/profile");
+        });
+    }); 
+}
+
+
 
 /**
  * Routes for wall
@@ -272,6 +319,10 @@ var routes = {
     get_friend_status: getFriendStatus,
     add_friend: addFriends,
     delete_friend: deleteFriends,
+    change_affiliation: changeAffiliation,
+    change_email: changeEmail,
+    change_password: changePassword,
+    change_interests: changeInterests,
     search_JSON: searchJSON,
     make_post: makePost,
     make_comment: makeComment,

@@ -55,6 +55,10 @@ app.get('/logout', routes.logout_user);
  app.post('/getFriends', routes.get_friends);
  app.post('/addFriend', routes.add_friend);
  app.post('/deleteFriend', routes.delete_friend);
+ app.post('/changeAffiliation', routes.change_affiliation);
+ app.post('/changeEmail', routes.change_email);
+ app.post('/changePassword', routes.change_password);
+ app.post('/changeInterests', routes.change_interests);
 
 /**
  * Routes for wall
