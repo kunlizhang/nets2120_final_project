@@ -41,10 +41,8 @@
     <div class="container">
         <form action="/makeChat" method="post" class="form">
             <h3>Create a chat!</h3>
-            <label for="login" class="sr-only">User 1</label>
-            <input type="text" class="form-control" name="user_1" placeholder="Username 1" required autofocus>
             <label for="password" class="sr-only">User 2</label>
-            <input type="text" class="form-control" name="user_2" placeholder="Username 2" required>
+            <input type="text" class="form-control" name="user_2" placeholder="Enter username" required>
             <input type="submit" class="btn btn-primary btn-block" value="Create">		
             <% if (error == 1) { %>
                 <div class="alert alert-danger" style='margin-top:15px'>
