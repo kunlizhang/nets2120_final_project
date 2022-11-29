@@ -17,6 +17,7 @@
       var message_temp = document.createElement("div");
       message_temp.setAttribute("class", "mt-4");
       message_temp.setAttribute("id", "post-" + post_id);
+      message_temp.setAttribute("name", post_id);
       var msg_content = document.createElement("div");
       msg_content.setAttribute("class", "card col-md");
       var content = document.createElement("div");
@@ -135,6 +136,17 @@
   function refreshPosts() {
     $.post('/getPosts', {login: login}, function(data) {
         let posts = data.posts;
+        let names = posts.map(post => post.post_id.S);
+        
+        let current_posts = $('ul#posts li');
+        current_posts.each(function(idx, li) {
+            let elem = $(li);
+            if (!names.includes(elem.children(":first").attr("name"))) {
+                elem.remove();
+            }
+        });
+        mostRecentPost = $('ul#posts li:first').find("#timestamp").attr('name');
+        
         for (let i = posts.length - 1; i >= 0; i--) {
             let post = posts[i];
             if (mostRecentPost == null || mostRecentPost == "" || new Date(post.timestamp.S) - new Date(mostRecentPost) > 0) {
@@ -214,7 +226,7 @@
       <% posts.forEach(post => { %>
       <li>
       <% if (post.post_id) { %>
-        <div id="post-<%= post.post_id.S %>" class="mt-4">
+        <div id="post-<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="mt-4">
           <div class="card col-md">
             <div class="card-body">
               <a id="user" href='/profile/<%= post.login.S %>' class="card-title h5"><%= post.login.S %></a>
