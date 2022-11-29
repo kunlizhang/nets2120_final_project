@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+	<!-- CSS only -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+	<meta name='viewport' content='width=device-width, initial-scale=1'></meta>
+  <link rel="stylesheet" href="/css/search.css">
+  <script src="/js/search.js"></script>
+</head>
+<script>
+  var login = '<%= login %>';
+  var posts = [];
+  
+  function makePost() {
+    $.ajax({
+      type: "POST",
+      url: '/makePost',
+      data: {
+        login: login,
+        message: $('#post-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+        	  $('#post-warning').hide();
+        	  location.reload(); // this is temporary
+        } else {
+        	  $('#post-warning').show();
+        }
+      }
+    });
+  }
+    
+  function makeComment(post_id) {
+    $.ajax({
+      type: "POST",
+      url: '/makeComment',
+      data: {
+        post_id: post_id,
+        message: $('#comment-message').val(),
+      },
+      success: function(data) {
+        if (data.success) {
+            location.reload(); // this is temporary
+        }
+      }
+    })
+  }
+</script>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/homepage">PennBook</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/homepage">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0" action="/search" method="post" autocomplete="off">
+        <span class="autocomplete">
+          <input id="user-search" class="form-control mr-sm-2" type="search" name="keyword" placeholder="Search people" aria-label="Search">
+        </span>
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+      <a class="nav-link" href="/profile">My Profile</a>
+      <a class="nav-link" href="/logout">Logout</a>
+    </div>
+  </nav>
+  <h1>
+      Wall
+  </h1>
+  <div id="post-warning" class="alert alert-danger" style='margin:15px; display: none'>You can only post on your own or your friends' walls!</div>
+  <div>
+    <textarea id="post-message" name="post-message" rows="4" cols="50"></textarea><br>
+    <button id='post-button' class="btn btn-primary" onclick="makePost()">
+      <span id='post-text'>Post</span>
+    </button>
+  </div>
+  <% if (posts.length == 0) { %>
+    <h3>No posts!</h3>
+  <% } else { %>
+    <% posts.forEach(post => { %>
+      <div style="margin: 1cm">
+        <div class="card" style="width: 40rem">
+          <div class="card-body">
+            <p class="card-text"><%= post.message.S %></p>
+            <a href='/profile/<%= post.login.S %>' class="card-text"><%= post.login.S %></a>
+            <p class="card-text"><%= post.timestamp.S %></p>
+          </div>
+        <div class="card" style="width: 40rem">
+        <textarea id="comment-message" name="comment-message" rows="1" cols="50"></textarea>
+        <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+          <span id='comment-text'>Comment</span>
+        </button>
+        </div>
+        </div>
+          <% post.comments.SS.forEach(comment => { %>
+            <% if (comment != "default") { %>
+              <div class="card" style="width: 40rem">
+              <% const [user, ...message] = comment.split(', '); %>
+              <p class="card-text"><%= message %></p>
+              <a href='/profile/<%= user %>' class="card-text"><%= user %></a>
+              </div>
+            <% } %>
+          <% }); %>
+        </div>
+      </div>
+    <% }); %>
+  <% } %>
+</body>
+</html>
