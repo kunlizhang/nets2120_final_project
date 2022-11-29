@@ -141,8 +141,10 @@
         let current_posts = $('ul#posts li');
         current_posts.each(function(idx, li) {
             let elem = $(li);
-            if (!names.includes(elem.children(":first").attr("name"))) {
-                elem.remove();
+            if (elem.children(":first").attr("id") && elem.children(":first").attr("id").startsWith("post-")) {
+                if (!names.includes(elem.children(":first").attr("name"))) {
+                    elem.remove();
+                }
             }
         });
         mostRecentPost = $('ul#posts li:first').find("#timestamp").attr('name');
@@ -259,7 +261,7 @@
           </div>
         </div>
       <% } else { %>
-        <div id="friend-<%= post.friend_login.S %>" class="mt-4">
+        <div id="friend-<%= post.friend_login.S %>" name="<%= post.friend_login.S %>" class="mt-4">
           <div class="card col-md">
             <div class="card-body">
               <p class="card-text">You and <a href='/profile/<%= post.friend_login.S %>'><%= post.friend_login.S %></a> became friends!</p>
