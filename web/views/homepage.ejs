@@ -15,36 +15,45 @@
   function makePostHelper(msg, login, timestamp, post_id) {
       var message = document.createElement("li");
       var message_temp = document.createElement("div");
-      message_temp.setAttribute("style", "margin: 1cm");
+      message_temp.setAttribute("class", "mt-4");
       message_temp.setAttribute("id", "post-" + post_id);
       var msg_content = document.createElement("div");
-      msg_content.setAttribute("class", "card");
-      msg_content.setAttribute("style", "width: 40rem");
+      msg_content.setAttribute("class", "card col-md");
       var content = document.createElement("div");
       content.setAttribute("class", "card-body");
+      var name = document.createElement("a");
+      name.setAttribute("href", "/profile/" + login);
+      name.setAttribute("class", "card-title h5");
+      name.setAttribute("id", "user");
+      name.innerText = login;
       var text = document.createElement("p");
       text.setAttribute("class", "card-text");
       text.innerText = msg;
-      var name = document.createElement("a");
-      name.setAttribute("href", "/profile/" + login);
-      name.setAttribute("class", "card-text");
-      name.setAttribute("id", "user");
-      name.innerText = login;
       var time = document.createElement("p");
       time.setAttribute("id", "timestamp");
       time.setAttribute("class", "card-text");
+      time.setAttribute("name", timestamp);
       time.innerText = new Date(timestamp).toUTCString();
-      content.appendChild(text);
       content.appendChild(name);
+      content.appendChild(text);
       content.appendChild(time);
-      var comment_box = document.createElement("div");
-      comment_box.setAttribute("class", "card");
-      comment_box.setAttribute("style", "width: 40rem");
-      var comment = document.createElement("textarea");
-      comment.setAttribute("id", "comment-message-" + post_id);
-      comment.setAttribute("name", "comment-message-" + post_id);
-      comment.setAttribute("rows", "1");
-      comment.setAttribute("cols", "50");
+      
+      var comment_list = document.createElement("ul");
+      comment_list.setAttribute("id", "comments-" + post_id);
+      comment_list.setAttribute("style", "list-style-type: none");
+      comment_list.setAttribute("class", "mb-2");
+      var row = document.createElement("div");
+      row.setAttribute("class", "form-row");
+      var comment = document.createElement("div");
+      comment.setAttribute("class", "col");
+      var input = document.createElement("input");
+      input.setAttribute("type", "text");
+      input.setAttribute("class", "form-control");
+      input.setAttribute("id", "comment-message-" + post_id);
+      input.setAttribute("name", "comment-message-" + post_id);
+      comment.appendChild(input);
+      var button_div = document.createElement("div");
+      button_div.setAttribute("class", "col-2");
       var button = document.createElement("button");
       button.setAttribute("id", post_id);
       button.setAttribute("name", post_id);
@@ -54,15 +63,13 @@
       btn_span.setAttribute("id", "comment-text");
       btn_span.innerText = "Comment"
       button.appendChild(btn_span);
-      comment_box.appendChild(comment);
-      comment_box.appendChild(button);
+      button_div.appendChild(button);
+      row.appendChild(comment);
+      row.appendChild(button_div);
+      content.appendChild(comment_list);
+      content.appendChild(row);
       msg_content.appendChild(content);
-      msg_content.appendChild(comment_box);
-      var comment_list = document.createElement("ul");
-      comment_list.setAttribute("id", "comments-" + post_id);
-      comment_list.setAttribute("style", "list-style-type: none");
       message_temp.appendChild(msg_content);
-      message_temp.appendChild(comment_list);
       message.appendChild(message_temp);
       $('#posts').prepend(message);
   }
@@ -94,8 +101,7 @@
       const [user, ...message] = comment.split(', ');
       var comment = document.createElement("li");
       var comment_temp = document.createElement("div");
-      comment_temp.setAttribute("class", "card");
-      comment_temp.setAttribute("style", "width: 40rem");
+      comment_temp.setAttribute("class", "card col-sm");
       var text = document.createElement("p");
       text.setAttribute("class", "card-text");
       text.innerText = message;
@@ -155,7 +161,7 @@
   }
   
   $(document).ready(function() {
-    mostRecentPost = $('ul#posts li:first').find("#timestamp").text();
+    mostRecentPost = $('ul#posts li:first').find("#timestamp").attr('name');
     
     refreshPosts();
     setInterval(function() {
@@ -213,7 +219,7 @@
             <div class="card-body">
               <a id="user" href='/profile/<%= post.login.S %>' class="card-title h5"><%= post.login.S %></a>
               <p class="card-text"><%= post.message.S %></p>
-              <p id="timestamp" class="card-text"><%= new Date(post.timestamp.S).toUTCString() %></p>
+              <p id="timestamp" name="<%= post.timestamp.S %>" class="card-text"><%= new Date(post.timestamp.S).toUTCString() %></p>
               <ul id="comments-<%= post.post_id.S %>" style="list-style-type: none" class="mb-2">
                 <% post.comments.SS.forEach(comment => { %>
                   <% if (comment != "default") { %>
@@ -227,18 +233,16 @@
                   <% } %>
                 <% }); %>
               </ul>
-              <form>
-                <div class="form-row">
-                  <div class="col">
-                    <input type='text' class='form-control' id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>"></input>
-                  </div>
-                  <div class="col-2">
-                    <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
-                      <span id='comment-text'>Comment</span>
-                    </button>
-                  </div>
+              <div class="form-row">
+                <div class="col">
+                  <input type='text' class='form-control' id="comment-message-<%= post.post_id.S %>" name="comment-message-<%= post.post_id.S %>"></input>
                 </div>
-              </form>
+                <div class="col-2">
+                  <button id="<%= post.post_id.S %>" name="<%= post.post_id.S %>" class="btn btn-primary" onclick="makeComment(this.id)">
+                    <span id='comment-text'>Comment</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -246,8 +250,8 @@
         <div id="friend-<%= post.friend_login.S %>" class="mt-4">
           <div class="card col-md">
             <div class="card-body">
-              <p class="card-text">You friended <a href='/profile/<%= post.friend_login.S %>'><%= post.friend_login.S %></a></p>
-              <p id="timestamp" class="card-text"><%= new Date(post.timestamp.S).toUTCString() %></p>
+              <p class="card-text">You and <a href='/profile/<%= post.friend_login.S %>'><%= post.friend_login.S %></a> became friends!</p>
+              <p id="timestamp" name="<%= post.timestamp.S %>" class="card-text"><%= new Date(post.timestamp.S).toUTCString() %></p>
             </div>
           </div>
         </div>
