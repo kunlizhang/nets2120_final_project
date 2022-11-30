@@ -15,7 +15,7 @@ var getMain = function(req, res) {
     }
 }
 
-// Checks login is valid
+// Checks login is valid. Also updates the online table to indicate that they are online
 var checkLogin = function(req, res) {
     var login = req.body.login;
     var password = req.body.password;
@@ -27,11 +27,34 @@ var checkLogin = function(req, res) {
         } else {
             if (data) {
                 console.log("User " + login + " logged in.");
-                req.session.login = login;
-                res.redirect('/homepage') 
+                db.check_user_online(login, function(err, data) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        if (data) {
+                            db.update_user_online(login, function(err, data) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log("User " + login + " is now online.");
+                                }
+                            });
+                        } else {
+                            db.add_user_online(login, function(err, data) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log("User " + login + " is now online.");
+                                }
+                            });
+                        }
+                        req.session.login = login;
+                        res.redirect('/homepage') 
+                    }
+                });
             } else {
                 res.redirect('/?error=' + encodeURIComponent("invalid_login"));
-            } 
+            }
         }
     })
 }
