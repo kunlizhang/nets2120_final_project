@@ -32,7 +32,7 @@ var checkLogin = function(req, res) {
                         console.log(err);
                     } else {
                         if (data) {
-                            db.update_user_online(login, function(err, data) {
+                            db.update_user_online(login, new Date().toJSON(), function(err, data) {
                                 if (err) {
                                     console.log(err);
                                 } else {
@@ -40,7 +40,7 @@ var checkLogin = function(req, res) {
                                 }
                             });
                         } else {
-                            db.add_user_online(login, function(err, data) {
+                            db.add_user_online(login,new Date().toJSON(), function(err, data) {
                                 if (err) {
                                     console.log(err);
                                 } else {
@@ -96,9 +96,7 @@ var createAccount = function(req, res) {
               res.redirect('/signup?error=' + encodeURIComponent('invalid_username'));
           } else {
               db.add_user(login, password, firstname, lastname, email, affiliation, birthday, selected, function() {
-                  req.session.login = login;
-                  console.log('User ' + login + ' logged in.');
-                  res.redirect('/homepage');
+                  res.redirect('/');
               });
           }
       });
@@ -131,8 +129,15 @@ var searchJSON = function(req, res) {
 
 // Logout the user
 var logoutUser = function(req, res) {
-    req.session.login = "";
-    res.redirect('/');
+    db.delete_user_online(req.session.login, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("User " + req.session.login + " is now offline.");
+            req.session.login = "";
+            res.redirect('/');
+        }
+    });
 }
 
 /**

@@ -504,6 +504,23 @@ var updateUserOnline = function(login, timestamp, callback) {
     });
 }
 
+var deleteUserOnline = function(login, callback) {
+    var params = {
+        Key: {
+            'login': { S: login }
+        },
+        TableName: 'user_online'
+    };
+
+    db.deleteItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
 var checkUserOnline = function(login, callback) {
     var params = {
         Key: {
@@ -541,6 +558,7 @@ var database = {
     update_user_online: updateUserOnline,
     add_user_online: addUserOnline,
     check_user_online: checkUserOnline,
+    delete_user_online: deleteUserOnline,
 };
 
 module.exports = database;
