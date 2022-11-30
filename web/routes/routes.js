@@ -149,7 +149,13 @@ var getMyProfile = function(req, res) {
     if (!req.session.login) {
         res.redirect('/');
     } else {
-        res.redirect('/profile/' + req.session.login);
+        db.update_user_online(req.session.login, new Date().toJSON(), function(err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                res.redirect('/profile/' + req.session.login);
+            }
+        });
     }
 }
 
@@ -338,6 +344,7 @@ var getHomepage = function(req, res) {
     if (!login) {
         res.redirect('/');
     } else {
+        db.update_user_online(login, new Date().toJSON(), function() {});
         db.get_friends_info(login, function(friends) {
             var postNames = friends.map(elem => elem.friend_login.S);
             postNames.push(login);
