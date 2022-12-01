@@ -462,44 +462,52 @@ var addComment = function(post_user, login, post_id, message, callback) {
 }
 
 // User online queries
-
-var addUserOnline = function(login, timestamp, callback) {
-    var params = {
-        Item: {
-            'login': { S: login },
-            'last_active': { S: timestamp },
-        },
-        TableName: 'user_online',
-    };
-
-    db.putItem(params, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            callback();
-        }
-    });
-}
-
-
 var updateUserOnline = function(login, timestamp, callback) {
     var params = {
         Key: {
             'login': { S: login }
         },
-        TableName: 'user',
-        UpdateExpression: 'set last_active = :o',
-        ExpressionAttributeValues: {
-            ':o': { S: timestamp}
-        },
-        ReturnValues: 'NONE'
+        TableName: 'user_online',
     };
-
-    db.updateItem(params, function(err, data) {
+    
+    db.getItem(params, function(err, data) {
         if (err) {
             console.log(err);
+        } else if (data.Items) {
+            var params = {
+                TableName: "user_online",
+                "Key": { 
+                  "login": { "S": login },
+               },
+                UpdateExpression: 'SET last_active = :last_active',
+                ExpressionAttributeValues: {
+                    ':last_active': { 'S': timestamp }
+                },
+            };
+            
+            db.updateItem(params, function(err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    callback();
+                }
+            });
         } else {
-            callback();
+            var params = {
+                Item: {
+                    'login': { S: login },
+                    'last_active': { S: timestamp },
+                },
+                TableName: 'user_online',
+            };
+        
+            db.putItem(params, function(err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    callback();
+                }
+            });
         }
     });
 }
@@ -538,6 +546,57 @@ var checkUserOnline = function(login, callback) {
     });
 }
 
+var getOnlineFriends = function(login, callback) {
+    var params = {
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            },
+            
+        },
+        TableName: 'friend',
+    };
+  
+    db.query(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            let friends = data.Items;
+            let promises = [];
+            friends.forEach(friend => {
+                const promise = new Promise((resolve, reject) => {
+                    var params = {
+                        Key: {
+                            'login': { S: friend.friend_login.S }
+                        },
+                        TableName: 'user_online',
+                    };
+                    
+                    db.getItem(params, function(err, data) {
+                        if (err) {
+                            console.log(err);
+                            reject(err);
+                        } else {
+                            resolve(data.Item);
+                        }
+                    });
+                });
+                promises.push(promise);
+            });
+            Promise.all(promises).then(
+                successData => {
+                    callback(successData);
+                }
+            ).catch(
+                errorData => {
+                    console.log(errorData);
+                }
+            );
+        }
+    });
+}
+
 var database = {
     add_user: addUser,
     exists_user: existsUser,
@@ -556,9 +615,9 @@ var database = {
     add_post: addPost,
     add_comment: addComment,
     update_user_online: updateUserOnline,
-    add_user_online: addUserOnline,
     check_user_online: checkUserOnline,
     delete_user_online: deleteUserOnline,
+    get_online_friends: getOnlineFriends,
 };
 
 module.exports = database;

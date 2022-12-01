@@ -27,31 +27,8 @@ var checkLogin = function(req, res) {
         } else {
             if (data) {
                 console.log("User " + login + " logged in.");
-                db.check_user_online(login, function(err, data) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        if (data) {
-                            db.update_user_online(login, new Date().toJSON(), function(err, data) {
-                                if (err) {
-                                    console.log(err);
-                                } else {
-                                    console.log("User " + login + " is now online.");
-                                }
-                            });
-                        } else {
-                            db.add_user_online(login,new Date().toJSON(), function(err, data) {
-                                if (err) {
-                                    console.log(err);
-                                } else {
-                                    console.log("User " + login + " is now online.");
-                                }
-                            });
-                        }
-                        req.session.login = login;
-                        res.redirect('/homepage') 
-                    }
-                });
+                req.session.login = login;
+                res.redirect('/homepage'); 
             } else {
                 res.redirect('/?error=' + encodeURIComponent("invalid_login"));
             }
@@ -344,16 +321,17 @@ var getHomepage = function(req, res) {
     if (!login) {
         res.redirect('/');
     } else {
-        db.update_user_online(login, new Date().toJSON(), function() {});
-        db.get_friends_info(login, function(friends) {
-            var postNames = friends.map(elem => elem.friend_login.S);
-            postNames.push(login);
-            db.get_posts(postNames, function(posts) {
-                let events = posts.concat(friends);
-                events.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
-                res.render('homepage.ejs', {
-                    login: login,
-                    posts: events,
+        db.update_user_online(login, new Date().toJSON(), function() {
+            db.get_friends_info(login, function(friends) {
+                var postNames = friends.map(elem => elem.friend_login.S);
+                postNames.push(login);
+                db.get_posts(postNames, function(posts) {
+                    let events = posts.concat(friends);
+                    events.sort((one, two) => { return new Date(two.timestamp.S) - new Date(one.timestamp.S) }); // change later
+                    res.render('homepage.ejs', {
+                        login: login,
+                        posts: events,
+                    });
                 });
             });
         });

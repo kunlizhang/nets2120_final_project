@@ -1,5 +1,6 @@
 const { application } = require('express');
 var db = require('../models/chat_database.js');
+var main_db = require('../models/database.js');
 
 var getCreateChat = function(req, res) {
 	if (!req.session.login) {
@@ -11,8 +12,22 @@ var getCreateChat = function(req, res) {
 				console.log(err);
 				res.redirect('/createChat?error=2');
 			} else {
-				console.log(data);
-				res.render('createChat.ejs', {error: req.query.error, user_chats: data.Items});
+				main_db.update_user_online(user_1, new Date().toJSON(), function(err) {
+					if (err) {
+						console.log(err);
+						res.redirect('/createChat?error=2');
+					} else {
+						main_db.get_online_friends(user_1, function(err, data2) {
+							if (err) {
+								console.log(err);
+								res.redirect('/createChat?error=2');
+							} else {
+								res.render('createChat.ejs', {chats: data.Items, online_friends: data2.Items, error: req.query.error});
+							}
+						});
+					}
+				});
+				
 			}
 		});	
 	}

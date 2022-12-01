@@ -64,6 +64,11 @@
               </tr>
           <% }); %>
         </table>
+        <ul>
+            <% for (friend of online_friends) {%>
+                <li><%friend.login.S%></li>
+            <% } %>
+        </ul>
     </div>
     
 </body>
