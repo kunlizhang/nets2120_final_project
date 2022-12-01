@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -158,7 +160,7 @@ public class NewsLoader {
 	 * @throws InterruptedException User presses Ctrl-C
 	 */
 	private void batchWriteItems(List<Item> items, String tableName) throws DynamoDbException, InterruptedException {
-		// Quite early if items empty or too many
+		// Quit early if items empty or too many
 		if (items.isEmpty() || items.size() > 25)
 			return;
 		
@@ -189,8 +191,9 @@ public class NewsLoader {
 		LinkedList<Item> catItems = new LinkedList<>();
 		LinkedList<Item> kwdItems = new LinkedList<>();
 		
-		String prev = "";
-		while ((line = newsArticles.readLine()) != null) {
+		HashSet<String> prevUuids = new HashSet<>();
+		int i = 1;
+		while ((line = newsArticles.readLine()) != null) {			
 			// Batch write if 25 items
 			if (newsItems.size() >= 25 || catItems.size() >= 25) {
 				batchWriteItems(newsItems, newsTableName);
@@ -202,13 +205,12 @@ public class NewsLoader {
 			// Read json and generate UUID from json, ensuring uuid is not duplicate
 			JSONObject json = new JSONObject(line);
 			String uuid = UUID.nameUUIDFromBytes(json.toString().getBytes()).toString();
-			if (uuid.equals(prev))
+			if (prevUuids.contains(uuid))
 				continue;
-			prev = uuid;
+			prevUuids.add(uuid);
 			
-			// Add 5 years to date, handling leap year (just turn to 28th)
-			String date = json.getString("date");
-			date = date.equals("2016-02-29") ? "2021-02-28" : (Integer.parseInt(date.substring(0, 4)) + 5) + date.substring(4);
+			// Add 5 years to date, handling leap year
+			String date = LocalDate.parse(json.getString("date")).plusYears(5).toString();
 
 			// Add news item
 			newsItems.add(new Item()
@@ -247,6 +249,8 @@ public class NewsLoader {
 				}
 				kwdItems.add(new Item().withPrimaryKey("keyword", word, "article_id", uuid));
 			}
+			
+			System.out.println(i++ + ": " + uuid + " " + json.getString("date") + " " + json.getString("headline"));
 		}
 		// Write remaining items not in set of 25
 		batchWriteItems(newsItems, newsTableName);
