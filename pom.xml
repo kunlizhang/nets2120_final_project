@@ -268,7 +268,7 @@
 							<goal>java</goal>
 						</goals>
 						<configuration>
-							<mainClass>edu.upenn.cis.nets2120.g36.NewsRecommendation</mainClass>
+							<mainClass>edu.upenn.cis.nets2120.g36.local.NewsRecommendation</mainClass>
 							<arguments>
 							</arguments>
 						</configuration>
