@@ -575,7 +575,12 @@ var getOnlineFriends = function(login, callback) {
                     let onlineFriends = [];
                     successData.forEach(friend => {
                         if (friend.Item) {
-                            onlineFriends.push(friend.Item);
+                            var time = new Date(friend.Item.last_active.S);
+                            var now = new Date();
+                            var diff = (now - time) / 1000;
+                            if (diff < 600) {
+                                onlineFriends.push(friend.Item.login.S);
+                            }
                         }
                     });
                     callback(onlineFriends);
