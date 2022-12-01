@@ -338,6 +338,19 @@ var getHomepage = function(req, res) {
     }
 }
 
+/**
+ * Routes for news feed
+ */
+
+var getNewsFeed = function(req, res) {
+    let login = req.session.login;
+    if (!login) {
+        res.redirect('/');
+    } else {
+        res.render('newsfeed.ejs');
+    }
+}
+
 var routes = {
     get_main: getMain,
     check_login: checkLogin,
@@ -361,6 +374,7 @@ var routes = {
     make_comment: makeComment,
     get_posts: getPosts,
     get_friends: getFriends,
+    get_news_feed: getNewsFeed,
 };
 
 module.exports = routes;
