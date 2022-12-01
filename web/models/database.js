@@ -496,11 +496,7 @@ var updateUserOnline = function(login, timestamp, callback) {
     };
 
     db.updateItem(params, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            callback();
-        }
+        callback(err);
     });
 }
 
@@ -530,11 +526,7 @@ var checkUserOnline = function(login, callback) {
     };
     
     db.getItem(params, function(err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            callback(data.Item);
-        }
+        callback(err, data.Item);
     });
 }
 

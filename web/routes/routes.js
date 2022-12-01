@@ -32,7 +32,7 @@ var checkLogin = function(req, res) {
                         console.log(err);
                     } else {
                         if (data) {
-                            db.update_user_online(login, new Date().toJSON(), function(err, data) {
+                            db.update_user_online(login, new Date().toJSON(), function(err) {
                                 if (err) {
                                     console.log(err);
                                 } else {
@@ -40,7 +40,7 @@ var checkLogin = function(req, res) {
                                 }
                             });
                         } else {
-                            db.add_user_online(login,new Date().toJSON(), function(err, data) {
+                            db.add_user_online(login,new Date().toJSON(), function(err) {
                                 if (err) {
                                     console.log(err);
                                 } else {
