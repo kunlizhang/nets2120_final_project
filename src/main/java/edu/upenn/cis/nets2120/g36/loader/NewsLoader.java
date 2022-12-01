@@ -247,10 +247,13 @@ public class NewsLoader {
 					batchWriteItems(kwdItems, kwdTableName);
 					kwdItems = new LinkedList<>();
 				}
-				kwdItems.add(new Item().withPrimaryKey("keyword", word, "article_id", uuid));
+				kwdItems.add(new Item()
+					.withPrimaryKey("keyword", word, "article_id", uuid)
+					.withString("date", date)
+				);
 			}
 			
-			System.out.println(i++ + ": " + uuid + " " + json.getString("date") + " " + json.getString("headline"));
+			System.out.println(i++ + ": " + uuid + " " + date + " " + json.getString("headline"));
 		}
 		// Write remaining items not in set of 25
 		batchWriteItems(newsItems, newsTableName);

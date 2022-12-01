@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class NewsRecommendation {
 	 */
 	JavaRDD<Tuple2<String, String>> nodes; // Schema: (id, type)
 	JavaPairRDD<Tuple2<String, String>, Tuple2<String, String>> edges; // Schema: (src: (id, type), dest: (id, type))
-	HashSet<String> uploadArt; // only articles from today
+	HashMap<String, String> artDates; // dates of articles
 
 	public NewsRecommendation() {
 		System.setProperty("file.encoding", "UTF-8");
@@ -127,7 +127,7 @@ public class NewsRecommendation {
 	 */
 	void loadDataDynamo() {
 		db = DynamoConnector.getConnection(Config.DYNAMODB_URL);
-		uploadArt = new HashSet<>();
+		artDates = new HashMap<>();
 				
 		// Reads categories table and from it gets nodes: categories, articles, shadow nodes, edges: topics (article, category), shadow edges (shadow, article)
 		Table newsTable = db.getTable("news");
@@ -139,6 +139,7 @@ public class NewsRecommendation {
 		for (Item row : news) {
 			LocalDate today = LocalDate.now();
 			LocalDate rowDate = LocalDate.parse(row.getString("date"));
+			String id = row.getString("article_id");
 
 			if (rowDate.isBefore(today.minusDays(14)) || rowDate.isAfter(today)) {
 				continue;
@@ -149,19 +150,17 @@ public class NewsRecommendation {
 				catList.add(new Tuple2<>(row.getString("category"), "CATEGORY"));
 			}
 			// add article and shadow version
-			artList.add(new Tuple2<>(row.getString("article_id"), "ARTICLE"));
-			artList.add(new Tuple2<>(row.getString("article_id"), "SHADOW"));
+			artList.add(new Tuple2<>(id, "ARTICLE"));
+			artList.add(new Tuple2<>(id, "SHADOW"));
 	
-			// add article to todays article list only if date matches
-			if (rowDate.isEqual(today)) {
-				uploadArt.add(row.getString("article_id"));
-			}
+			// add date of article to hashmap
+			artDates.put(id, row.getString("date"));
 			
 			// add shadow edge from shadow node to article
-			shadowEdgesList.add(new Tuple2<>(new Tuple2<>(row.getString("article_id"), "SHADOW"), new Tuple2<>(row.getString("article_id"), "ARTICLE")));
+			shadowEdgesList.add(new Tuple2<>(new Tuple2<>(id, "SHADOW"), new Tuple2<>(id, "ARTICLE")));
 			// add both directions of topic
-			topicList.add(new Tuple2<>(new Tuple2<>(row.getString("category"), "CATEGORY"), new Tuple2<>(row.getString("article_id"), "ARTICLE")));
-			topicList.add(new Tuple2<>(new Tuple2<>(row.getString("article_id"), "ARTICLE"), new Tuple2<>(row.getString("category"), "CATEGORY")));
+			topicList.add(new Tuple2<>(new Tuple2<>(row.getString("category"), "CATEGORY"), new Tuple2<>(id, "ARTICLE")));
+			topicList.add(new Tuple2<>(new Tuple2<>(id, "ARTICLE"), new Tuple2<>(row.getString("category"), "CATEGORY")));
 		}
 		JavaRDD<Tuple2<String, String>> catNodes = context.parallelize(catList);
 		JavaRDD<Tuple2<String, String>> artNodes = context.parallelize(artList);
@@ -274,7 +273,8 @@ public class NewsRecommendation {
 			// add label item to list
 			labelItems.add(new Item()
 				.withPrimaryKey("login", label._1._1, "article_id", label._2._1)
-				.with("weight", label._2._2)
+				.withNumber("weight", label._2._2)
+				.withString("date", artDates.get(label._2._1))
 			);
 		}
 		// write remaining items
@@ -388,13 +388,8 @@ public class NewsRecommendation {
 			}
 		}
 				
-		// Keep only labels on users, and if read from DynamoDB, articles from today
+		// Keep only labels on users
 		labels = labels.filter(t -> t._1._2.equals("USER"));
-		if (uploadArt != null) {
-			HashSet<String> localUploadArt = new HashSet<>(uploadArt);
-			labels = labels.filter(t -> localUploadArt.contains(t._2._1));
-			labels.foreach(t -> System.out.println(t));
-		}
 		
 		System.out.println("FINISHED");
 		labels.foreach(t -> System.out.println(t));
