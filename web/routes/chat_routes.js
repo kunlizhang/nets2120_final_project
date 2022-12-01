@@ -17,13 +17,8 @@ var getCreateChat = function(req, res) {
 						console.log(err);
 						res.redirect('/createChat?error=2');
 					} else {
-						main_db.get_online_friends(user_1, function(err, data2) {
-							if (err) {
-								console.log(err);
-								res.redirect('/createChat?error=2');
-							} else {
-								res.render('createChat.ejs', {chats: data.Items, online_friends: data2.Items, error: req.query.error});
-							}
+						main_db.get_online_friends(user_1, function(data2) {
+							res.render('createChat.ejs', {user_chats: data.Items, online_friends: data2, error: req.query.error});
 						});
 					}
 				});

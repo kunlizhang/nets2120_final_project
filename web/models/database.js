@@ -478,7 +478,7 @@ var updateUserOnline = function(login, timestamp, callback) {
                 TableName: "user_online",
                 "Key": { 
                   "login": { "S": login },
-               },
+                },
                 UpdateExpression: 'SET last_active = :last_active',
                 ExpressionAttributeValues: {
                     ':last_active': { 'S': timestamp }
@@ -543,6 +543,7 @@ var checkUserOnline = function(login, callback) {
 }
 
 var getOnlineFriends = function(login, callback) {
+    console.log("Getting online friends for " + login);
     var params = {
         KeyConditions: {
             login: {
@@ -561,28 +562,23 @@ var getOnlineFriends = function(login, callback) {
             let friends = data.Items;
             let promises = [];
             friends.forEach(friend => {
-                const promise = new Promise((resolve, reject) => {
-                    var params = {
-                        Key: {
-                            'login': { S: friend.friend_login.S }
-                        },
-                        TableName: 'user_online',
-                    };
-                    
-                    db.getItem(params, function(err, data) {
-                        if (err) {
-                            console.log(err);
-                            reject(err);
-                        } else {
-                            resolve(data.Item);
-                        }
-                    });
-                });
-                promises.push(promise);
+                var params = {
+                    Key: {
+                        'login': { S: friend.friend_login.S }
+                    },
+                    TableName: 'user_online',
+                };
+                promises.push(db.getItem(params).promise());
             });
             Promise.all(promises).then(
                 successData => {
-                    callback(successData);
+                    let onlineFriends = [];
+                    successData.forEach(friend => {
+                        if (friend.Item) {
+                            onlineFriends.push(friend.Item);
+                        }
+                    });
+                    callback(onlineFriends);
                 }
             ).catch(
                 errorData => {

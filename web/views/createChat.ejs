@@ -64,9 +64,12 @@
               </tr>
           <% }); %>
         </table>
+        <h3>Online friends</h3>
         <ul>
             <% for (friend of online_friends) {%>
-                <li><%friend.login.S%></li>
+                <li>
+                    <a href="/profile/<%=friend.login.S%>"><%= friend.login.S%></a>
+                </li>
             <% } %>
         </ul>
     </div>
