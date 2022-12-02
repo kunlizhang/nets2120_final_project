@@ -10,7 +10,10 @@ var db = require('../models/news_database.js');
     if (!login) {
         res.redirect('/');
     } else {
-        res.render('newsfeed.ejs');
+        db.get_news_feed(login, function(data) {
+            console.log(data);
+            res.render('newsFeed.ejs', {news: data, login: login});
+        });
     }
 }
 

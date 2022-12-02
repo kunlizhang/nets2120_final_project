@@ -23,7 +23,16 @@ var getNewsArticles = function(login, callback) {
         if (err) {
             console.log(err);
         } else {
-            callback(data.Items);
+            var todaysArticles = [];
+            var today = new Date(Date.now() - 18000000);
+            today.setUTCHours(0, 0, 0, 0);
+            data.Items.forEach(function(article) {
+                var articleDate = new Date(article.date.S);
+                if (articleDate.getFullYear() == today.getFullYear() && articleDate.getMonth() == today.getMonth() && articleDate.getDate() == today.getDate()) {
+                    todaysArticles.push(article);
+                }
+            });
+            callback(todaysArticles);
         }
     });
 }
