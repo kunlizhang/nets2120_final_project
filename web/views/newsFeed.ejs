@@ -39,10 +39,29 @@
 			<a class="nav-link" href="/logout">Logout</a>
 		</div>
 	</nav>
+    <br>
 	<div class="container">
-		<h1>
-            News feed page
-		</h1>
+		<h2>
+            Todays articles:
+		</h2>
+        <% for (article of news) {%>
+        <br>
+        <div class="card">
+            <h5 class="card-header">
+                <a href="<%=article.link.S%>"><%=article.headline.S%></a>
+                <span class="badge badge-info"><%=article.category.S%></span>
+            </h5>
+            <div class="card-body">
+                <p class="card-subtitle text-muted">
+                    <%=article.authors.S%>
+                </p>
+                <p class="card-text">
+                    <%=article.description.S%>
+                </p>
+                
+            </div>
+        </div>
+        <% } %>
 	</div>
     
 </body>

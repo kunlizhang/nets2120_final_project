@@ -28,9 +28,11 @@ var getNewsArticles = function(login, callback) {
             today.setUTCHours(0, 0, 0, 0);
             data.Items.forEach(function(article) {
                 var articleDate = new Date(article.date.S);
-                if (articleDate.getFullYear() == today.getFullYear() && articleDate.getMonth() == today.getMonth() && articleDate.getDate() == today.getDate()) {
-                    todaysArticles.push(article);
-                }
+                // if (articleDate.getFullYear() == today.getFullYear() && articleDate.getMonth() == today.getMonth() && articleDate.getDate() == today.getDate()) {
+                //     todaysArticles.push(article);
+                // }
+                // TODO: Do date checking when Spark job is running periodically
+                todaysArticles.push(article);
             });
             callback(todaysArticles);
         }
