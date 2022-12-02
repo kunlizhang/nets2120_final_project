@@ -1,6 +1,7 @@
 var express = require('express');
 var routes = require('./routes/routes.js');
 var chatRoutes = require('./routes/chat_routes.js');
+var newsRoutes = require('./routes/news_routes.js');
 var session = require('express-session');
 var app = express();
 var http = require("http").Server(app);
@@ -84,6 +85,10 @@ app.post('/makeChat', chatRoutes.make_chat);
  * Routes for news feedb
  */
 app.get('/newsfeed', routes.get_news_feed);
+/**
+ * Routes for news
+ */
+app.get('/newsKeywords', newsRoutes.get_news_keywords);
 
 http.listen(8080);
 console.log('Server running on port 8080.')
