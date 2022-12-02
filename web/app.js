@@ -82,13 +82,9 @@ app.post('/addMessage', chatRoutes.add_message);
 app.post('/makeChat', chatRoutes.make_chat);
 
 /**
- * Routes for news feedb
+ * Routes for news feed
  */
 app.get('/newsfeed', newsRoutes.get_news_feed);
-/**
- * Routes for news
- */
-app.get('/newsKeywords', newsRoutes.get_news_keywords);
 
 http.listen(8080);
 console.log('Server running on port 8080.')
