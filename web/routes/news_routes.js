@@ -1,6 +1,19 @@
 const { application } = require('express');
 var db = require('../models/news_database.js');
 
+/**
+ * Routes for news feed
+ */
+
+ var getNewsFeed = function(req, res) {
+    let login = req.session.login;
+    if (!login) {
+        res.redirect('/');
+    } else {
+        res.render('newsfeed.ejs');
+    }
+}
+
 var getNewsKeywords = function(req, res) {
     let login = req.session.login;
     if (!login) {
@@ -20,6 +33,7 @@ var getNewsKeywords = function(req, res) {
 
 var routes = {
     get_news_keywords: getNewsKeywords,
+    get_news_feed: getNewsFeed,
 };
 
 module.exports = routes;

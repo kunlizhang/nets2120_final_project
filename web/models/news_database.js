@@ -3,22 +3,61 @@ const stemmer = require('stemmer');
 AWS.config.update({region:'us-east-1'});
 var db = new AWS.DynamoDB();
 
-var checkUserOnline = function(login, callback) {
+/**
+ * Queries for news feed
+ */
+
+// Gets all the news articles stored in the adsorption algorithm table for this user
+var getNewsArticles = function(login, callback) {
     var params = {
-        Key: {
-            'login': { S: login }
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            }
         },
-        TableName: 'user_online',
+        TableName: 'news_weights',
     };
-    
-    db.getItem(params, function(err, data) {
+
+    db.query(params, function(err, data) {
         if (err) {
             console.log(err);
         } else {
-            callback(data.Item);
+            callback(data.Items);
         }
     });
 }
+
+var getNewsFeed = function(login, callback) {
+    getNewsArticles(login, function(articles) {
+        let promises = [];
+        articles.forEach(article => {
+            var params = {
+                Key: {
+                    'article_id': { S: article.article_id.S }
+                },
+                TableName: 'news',
+            };
+            promises.push(db.getItem(params).promise());
+        });
+        Promise.all(promises).then(
+            successData => {
+                let newsFeed = [];
+                successData.forEach(article => {
+                    if (article.Item) {
+                        newsFeed.push(article.Item);
+                    }
+                });
+                callback(newsFeed);
+            }
+        ).catch(
+            errorData => {
+                console.log(errorData);
+            }
+        );
+    });
+}
+
 
 var getNewsKeywords = function(login, keywords, callback) {
     var today = new Date(Date.now());
@@ -118,6 +157,8 @@ var getNewsKeywords = function(login, keywords, callback) {
 
 var news_database = {
     get_news_keywords: getNewsKeywords,
+    get_news_feed: getNewsFeed,
+    get_news_articles: getNewsArticles,
 };
 
 module.exports = news_database;

@@ -84,7 +84,7 @@ app.post('/makeChat', chatRoutes.make_chat);
 /**
  * Routes for news feedb
  */
-app.get('/newsfeed', routes.get_news_feed);
+app.get('/newsfeed', newsRoutes.get_news_feed);
 /**
  * Routes for news
  */
