@@ -10,7 +10,7 @@ app.use(session({secret: "mySecret"})); //Not sure if I am using sessions proper
 app.use(express.urlencoded());
 app.use(express.static(__dirname + '/public'));
 
-// io
+// io for chat
 io.on("connection", function(socket) {
 	socket.on("message sent", function(obj) {
 		console.log("Sent to room: " + obj.room);
@@ -80,6 +80,12 @@ app.get('/chats', chatRoutes.show_chat);
 app.get('/createChat', chatRoutes.get_create_chat);
 app.post('/addMessage', chatRoutes.add_message);
 app.post('/makeChat', chatRoutes.make_chat);
+app.post('/sendPrivateInvite', chatRoutes.send_chat_invite_private);
+app.post('/sendGroupInvite', chatRoutes.send_chat_invite_group);
+app.post('/acceptPrivate', chatRoutes.accept_private_invite);
+app.post('/deletePrivateInvite', chatRoutes.delete_private_invite);
+app.post('/acceptGroup', chatRoutes.accept_group_invite);
+app.post('/deleteGroupInvite', chatRoutes.delete_group_invite);
 
 /**
  * Routes for news feed

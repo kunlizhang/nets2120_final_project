@@ -124,6 +124,18 @@
 			<%= username %>
 		</div>
 	</div>
+	<div class="container">
+		<div>
+			<h3>Online friends</h3>
+	        <ul>
+	            <% for (friend of online_friends) {%>
+	                <li>
+	                    <a href="/profile/<%=friend%>"><%= friend%></a>
+	                </li>
+	            <% } %>
+	        </ul>
+		
+	</div>
 </body>
 <script>
 	autocomplete(document.getElementById("user-search"));

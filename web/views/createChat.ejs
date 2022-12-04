@@ -64,7 +64,12 @@
         <table style="width:100%">
           <% user_chats.forEach(function (element, index, array) { %>
               <tr>
-              <td><a href="/chats?id=<%= element.chat_id.S %>">Chat <%= index + 1 %></a></td>
+              <td><a href="/chats?id=<%= element.chat_id.S %>">Chat <%= index + 1 %></a>
+              	Chat users: <% for (var i = 0; i < chat_users_list[index].length; i++) {%>
+              		<%=chat_users_list[index][i]%>
+              		<% if (i < chat_users_list[index].length - 1) {%>,<% } %>
+              	<% } %>
+              </td>
               </tr>
           <% }); %>
         </table>
