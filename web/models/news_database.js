@@ -120,7 +120,7 @@ var getNewsKeywords = function(login, keywords, callback) {
                 for (var entry of wtRes.Items) {
                     wtMap[entry.article_id.S] = parseFloat(entry.weight.N);
                 }
-                console.log(wtMap);
+                // console.log(wtMap);
                 
                 var topMatches = Object.keys(articleMatches)
                     .sort(function(l, r) {

@@ -41,9 +41,17 @@
 	</nav>
     <br>
 	<div class="container">
-		<h2>
-            Todays articles:
-		</h2>
+        <form class="form" action="/newsSearch" method="post">
+            <div class="form-row">
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" placeholder="Search News" name="keywords">
+                </div>  
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+		
         <% for (article of news) {%>
         <br>
         <div class="card">
@@ -53,7 +61,7 @@
             </h5>
             <div class="card-body">
                 <p class="card-subtitle text-muted">
-                    <%=article.authors.S%>
+                    <%=article.authors.S%> | <%=article.date.S%>
                 </p>
                 <p class="card-text">
                     <%=article.description.S%>

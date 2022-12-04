@@ -25,8 +25,18 @@ var db = require('../models/news_database.js');
     }
 }
 
+var searchArticles = function(req, res) {
+    let login = req.session.login;
+    if (!login) {
+        res.redirect('/');
+    } else {
+        res.redirect('/newsfeed?keywords=' + encodeURIComponent(req.body.keywords));
+    }
+}
+
 var routes = {
     get_news_feed: getNewsFeed,
+    search_articles: searchArticles
 };
 
 module.exports = routes;
