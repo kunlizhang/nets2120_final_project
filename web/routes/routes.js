@@ -209,7 +209,7 @@ var changeAffiliation = function(req, res) {
 
     db.change_affiliation(login, affiliation, function() {
         db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
-            res.redirect("/profile")
+            res.send({result: 0});
         });
     }); 
 }
@@ -218,14 +218,14 @@ var changeEmail = function(req, res) {
     var login = req.session.login;
     var email = req.body.email; 
 
-    db.change_email(login, email, function() {res.redirect("/profile")}); 
+    db.change_email(login, email, function() {res.send({result: 0})}); 
 }
 
 var changePassword = function(req, res) {
     var login = req.session.login;
     var password = req.body.password; 
 
-    db.change_password(login, password, function() {res.redirect("/profile")});
+    db.change_password(login, password, function() {res.send({result: 0})});
 }
 
 var changeInterests = function(req, res) {
