@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $.post('/friendvisualization', {}, function (json) {
+  $.post('/expandUser', {user: login}, function (json) {
       console.log(json);
       var infovis = document.getElementById('infovis');
       var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
@@ -37,7 +37,7 @@ $(document).ready(function() {
             domElement.innerHTML = node.name;
             domElement.style.cursor = "pointer";
             domElement.onclick = function() {
-                $.post('/expandUser/' + node.id, {}, function(json_inner) {
+                $.post('/expandUser', {user: node.id}, function(json_inner) {
                     ht.op.sum(json_inner, {
                         type: "fade:seq",
                         fps: 30,

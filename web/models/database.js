@@ -594,9 +594,6 @@ var getOnlineFriends = function(login, callback) {
     });
 }
 
-
-
-
 var database = {
     add_user: addUser,
     exists_user: existsUser,

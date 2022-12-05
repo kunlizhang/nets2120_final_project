@@ -344,108 +344,40 @@ var friendVisualizer = function(req, res) {
     if (!req.session.login) {
         res.redirect('/');
     } else {
-        res.render('friendvisualizer.ejs');
+        res.render('friendvisualizer.ejs', {login: req.session.login});
     }
 }
 
-var friendVisualization = function(req, res) {
-    var json = {"id": "alice","name": "Alice","children": [{
-        "id": "bob",
-        "name": "Bob",
-        "data": {},
-        "children": [{
-          "id": "dylan",
-          "name": "Dylan",
-          "data": {},
-          "children": []
-        }, {
-          "id": "marley",
-          "name": "Marley",
-          "data": {},
-          "children": []
-        }]
-      }, {
-        "id": "charlie",
-        "name": "Charlie",
-        "data": {},
-        "children": [{
-            "id":"bob"
-        }]
-    }, {
-        "id": "david",
-        "name": "David",
-        "data": {},
-        "children": []
-    }, {
-        "id": "peter",
-        "name": "Peter",
-        "data": {},
-        "children": []
-    }, {
-        "id": "michael",
-        "name": "Michael",
-        "data": {},
-        "children": []
-    }, {
-        "id": "sarah",
-        "name": "Sarah",
-        "data": {},
-        "children": []
-    }],
-    "data": []
-    };
-    res.send(json);
-}
-
 var expandUser = function(req, res) {
-    let user = req.params.user;
-    console.log(user);
-    var newFriends = {"id": "alice","name": "Alice","children": [{
-        "id": "james",
-            "name": "James",
-            "data": {},
-            "children": [{
-                "id": "arnold",
-                "name": "Arnold",
-                "data": {},
-                "children": []
-            }, {
-                "id": "elvis",
-                "name": "Elvis",
-                "data": {},
-                "children": []
-            }]
-        }, {
-            "id": "craig",
-            "name": "Craig",
-            "data": {},
-            "children": [{
-                "id":"arnold"
-            }]
-        }, {
-            "id": "amanda",
-            "name": "Amanda",
-            "data": {},
-            "children": []
-        }, {
-            "id": "phoebe",
-            "name": "Phoebe",
-            "data": {},
-            "children": []
-        }, {
-            "id": "spock",
-            "name": "Spock",
-            "data": {},
-            "children": []
-        }, {
-            "id": "matt",
-            "name": "Matthe",
-            "data": {},
-            "children": []
-        }],
-        "data": []
-    };
-    res.send(newFriends);
+    /*json = {"id": username
+              "name": fullname
+              "data": {}
+              "children": [...]
+             }
+    */
+    let user = req.body.user;
+    db.get_friends_info(user, function(friends) {
+        let promises = [];
+        friends.forEach(elem => {
+            let friend_login = elem.friend_login.S;
+            let promise = new Promise((resolve, reject) => {
+                db.get_user_info(friend_login, function(data) {
+                    let info = data.Items[0];
+                    let name = info.firstname.S + " " + info.lastname.S;
+                    resolve({"id": friend_login, "name": name, "data": {}, "children": []})
+                });
+            });
+            promises.push(promise);
+        });
+        Promise.all(promises).then(children => {
+            db.get_user_info(user, function(data) {
+                let info = data.Items[0];
+                let name = info.firstname.S + " " + info.lastname.S;
+                let json = {"id": user, "name": name, "data": {}, "children": children}
+                res.send(json);
+            });
+        });
+    });
 }
 
 var routes = {
@@ -472,7 +404,6 @@ var routes = {
     get_posts: getPosts,
     get_friends: getFriends,
     friend_visualizer: friendVisualizer,
-    friend_visualization: friendVisualization,
     expand_user: expandUser,
 };
 
