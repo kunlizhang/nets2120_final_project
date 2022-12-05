@@ -166,10 +166,88 @@ var getNewsKeywords = function(login, keywords, callback) {
     );
 }
 
+// Like a news article
+var likeNewsArticle = function(login, article_id, callback) {
+    var params = {
+        Item: {
+            login: { S: login },
+            article_id: { S: article_id },
+        },
+        TableName: 'likes',
+    };
+
+    db.putItem(params, function(err, data) { 
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var unlikeNewsArticle = function(login, article_id, callback) {
+    var params = {
+        Key: {
+            'login': { S: login },
+            'article_id': { S: article_id }
+        },
+        TableName: 'likes'
+    };
+
+    db.deleteItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var setArticleSeen = function(login, article_id, callback) {
+    var params = {
+        Item: {
+            login: { S: login },
+            article_id: { S: article_id },
+        },
+        TableName: 'news_seen',
+    };
+
+    db.putItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback();
+        }
+    });
+}
+
+var getArticleSeen = function(login, article_id, callback) {
+    var params = {
+        Key: {
+            'login': { S: login },
+            'article_id': { S: article_id }
+        },
+        TableName: 'news_seen'
+    };
+    
+    db.getItem(params, function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            callback(data.Item);
+        }
+    });
+}
+
+
 var news_database = {
     get_news_keywords: getNewsKeywords,
     get_news_feed: getNewsFeed,
     get_news_articles: getNewsArticles,
+    like_news_article: likeNewsArticle,
+    unlike_news_article: unlikeNewsArticle,
+    set_article_seen: setArticleSeen,
+    get_article_seen: getArticleSeen,
 };
 
 module.exports = news_database;
