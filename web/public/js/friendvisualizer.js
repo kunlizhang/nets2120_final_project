@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $.post('/expandUser', {user: login}, function (json) {
+  $.post('/expandUser', {user: login, root_user: login}, function (json) {
       console.log(json);
       var infovis = document.getElementById('infovis');
       var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
@@ -40,9 +40,9 @@ $(document).ready(function() {
             domElement.setAttribute("data-placement", "top");
             domElement.setAttribute("data-html", "true");
             domElement.setAttribute("title", 
-            "<div class='tooltip-text'><p>" + node.id + "</p><p>" + node.data["affiliation"] + "</div>");
+            "<div class='tooltip-text'><p>" + node.id + "</p><p>" + node.data.affiliation + "</div>");
             domElement.onclick = function() {
-                $.post('/expandUser', {user: node.id}, function(json_inner) {
+                $.post('/expandUser', {user: node.id, root_user: login}, function(json_inner) {
                     ht.op.sum(json_inner, {
                         type: "fade:seq",
                         fps: 30,

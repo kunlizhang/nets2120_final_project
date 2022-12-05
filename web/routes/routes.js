@@ -349,13 +349,8 @@ var friendVisualizer = function(req, res) {
 }
 
 var expandUser = function(req, res) {
-    /*json = {"id": username
-              "name": fullname
-              "data": {}
-              "children": [...]
-             }
-    */
     let user = req.body.user;
+    let root_user = req.body.root_user;
     db.get_friends_info(user, function(friends) {
         let promises = [];
         friends.forEach(elem => {
@@ -369,12 +364,21 @@ var expandUser = function(req, res) {
             });
             promises.push(promise);
         });
-        Promise.all(promises).then(children => {
-            db.get_user_info(user, function(data) {
-                let info = data.Items[0];
+        Promise.all(promises).then(friends => {
+            db.get_user_info(user, function(userData) {
+                let info = userData.Items[0];
                 let name = info.firstname.S + " " + info.lastname.S;
-                let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": children}
-                res.send(json);
+                if (user == root_user) {
+                    let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": friends}
+                    res.send(json);
+                } else {
+                    db.get_user_info(root_user, function(rootUserData) {
+                        let root_user_affiliation = rootUserData.Items[0].affiliation.S;
+                        friends = friends.filter(friend => friend.data.affiliation == root_user_affiliation);
+                        let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": friends}
+                        res.send(json);
+                    });
+                }
             });
         });
     });
