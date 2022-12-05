@@ -23,12 +23,12 @@ public class NewsRecommendationLivy {
 			
 			System.out.printf("Uploading %s to the Spark context...\n", jar);
 			client.uploadJar(new File(jar)).get();
+			
+			System.out.printf("Running NewsRecommendationJob...\n");
+			client.submit(new NewsRecommendationJob(7)).get();
 		} catch (Throwable e) {
 			System.out.println("Error");
 		}
-		
-		System.out.printf("Running NewsRecommendationJob...\n");
-		client.submit(new NewsRecommendationJob(7)).get();
 		
 		client.stop(true);
 	}
