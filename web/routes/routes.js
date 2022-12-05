@@ -1,4 +1,5 @@
 const { application } = require('express');
+const { exec } = require('child_process');
 var db = require('../models/database.js');
 
 /**
@@ -241,6 +242,10 @@ var changeInterests = function(req, res) {
                     db.add_post(login, login + " added " + new_interest + " to their interests", new Date().toJSON(), function() {});
                 }
             }
+            
+            // exec("./scripts/run_alg.sh", { cwd: '../' }, (error, stdout, stderr) => {
+            //     console.log(`stdout:\n${stdout}`);
+            // });
             res.redirect("/profile");
         });
     }); 
