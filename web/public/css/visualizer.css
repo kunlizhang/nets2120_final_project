@@ -1,0 +1,8 @@
+#infovis {
+    position: relative;
+    width: 800px;
+    height: 800px;
+    margin: auto;
+    overflow: hidden;
+    border: solid;
+}

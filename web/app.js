@@ -93,5 +93,12 @@ app.post('/deleteGroupInvite', chatRoutes.delete_group_invite);
 app.get('/newsfeed', newsRoutes.get_news_feed);
 app.post('/newsSearch', newsRoutes.search_articles);
 
+/**
+ * Routes for friend visualizer
+ */
+app.get('/friendvisualizer', routes.friend_visualizer);
+app.post('/friendvisualization', routes.friend_visualization);
+app.post('/expandUser/:user', routes.expand_user);
+
 http.listen(8080);
 console.log('Server running on port 8080.')

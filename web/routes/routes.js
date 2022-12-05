@@ -315,7 +315,6 @@ var makeComment = function(req, res) {
 /**
  * Routes for homepage
  */
-
 var getHomepage = function(req, res) {
     let login = req.session.login;
     if (!login) {
@@ -336,6 +335,117 @@ var getHomepage = function(req, res) {
             });
         });
     }
+}
+
+/**
+ * Routes for visualizer
+ */
+var friendVisualizer = function(req, res) {
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        res.render('friendvisualizer.ejs');
+    }
+}
+
+var friendVisualization = function(req, res) {
+    var json = {"id": "alice","name": "Alice","children": [{
+        "id": "bob",
+        "name": "Bob",
+        "data": {},
+        "children": [{
+          "id": "dylan",
+          "name": "Dylan",
+          "data": {},
+          "children": []
+        }, {
+          "id": "marley",
+          "name": "Marley",
+          "data": {},
+          "children": []
+        }]
+      }, {
+        "id": "charlie",
+        "name": "Charlie",
+        "data": {},
+        "children": [{
+            "id":"bob"
+        }]
+    }, {
+        "id": "david",
+        "name": "David",
+        "data": {},
+        "children": []
+    }, {
+        "id": "peter",
+        "name": "Peter",
+        "data": {},
+        "children": []
+    }, {
+        "id": "michael",
+        "name": "Michael",
+        "data": {},
+        "children": []
+    }, {
+        "id": "sarah",
+        "name": "Sarah",
+        "data": {},
+        "children": []
+    }],
+    "data": []
+    };
+    res.send(json);
+}
+
+var expandUser = function(req, res) {
+    let user = req.params.user;
+    console.log(user);
+    var newFriends = {"id": "alice","name": "Alice","children": [{
+        "id": "james",
+            "name": "James",
+            "data": {},
+            "children": [{
+                "id": "arnold",
+                "name": "Arnold",
+                "data": {},
+                "children": []
+            }, {
+                "id": "elvis",
+                "name": "Elvis",
+                "data": {},
+                "children": []
+            }]
+        }, {
+            "id": "craig",
+            "name": "Craig",
+            "data": {},
+            "children": [{
+                "id":"arnold"
+            }]
+        }, {
+            "id": "amanda",
+            "name": "Amanda",
+            "data": {},
+            "children": []
+        }, {
+            "id": "phoebe",
+            "name": "Phoebe",
+            "data": {},
+            "children": []
+        }, {
+            "id": "spock",
+            "name": "Spock",
+            "data": {},
+            "children": []
+        }, {
+            "id": "matt",
+            "name": "Matthe",
+            "data": {},
+            "children": []
+        }],
+        "data": []
+    };
+    res.send(newFriends);
 }
 
 var routes = {
@@ -361,6 +471,9 @@ var routes = {
     make_comment: makeComment,
     get_posts: getPosts,
     get_friends: getFriends,
+    friend_visualizer: friendVisualizer,
+    friend_visualization: friendVisualization,
+    expand_user: expandUser,
 };
 
 module.exports = routes;
