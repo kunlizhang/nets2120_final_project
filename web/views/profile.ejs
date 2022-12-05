@@ -292,7 +292,9 @@
         affiliation: newAffiliation,
       },
       success: function(data) {
-    	  $('#affiliation').text(newAffiliation);
+    	  if (data.result == 0) {
+    	    $('#affiliation').text(newAffiliation);
+    	  }
     	  $('#aff-input').val("");
       }
     });
@@ -307,7 +309,9 @@
         email: newEmail,
       },
       success: function(data) {
-        $('#email').text(newEmail);
+    	  if (data.result == 0) {
+    		  $('#email').text(newEmail);
+    	  }
         $('#email-input').val("");
       }
     });
