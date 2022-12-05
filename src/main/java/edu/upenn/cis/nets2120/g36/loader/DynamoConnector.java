@@ -1,8 +1,5 @@
 package edu.upenn.cis.nets2120.g36.loader;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -16,14 +13,6 @@ import edu.upenn.cis.nets2120.config.Config;
  *
  */
 public class DynamoConnector {
-	/**
-	 * A logger is useful for writing different types of messages
-	 * that can help with debugging and monitoring activity.  You create
-	 * it and give it the associated class as a parameter -- so in the
-	 * config file one can adjust what messages are sent for this class. 
-	 */
-	static Logger logger = LogManager.getLogger(DynamoConnector.class);
-	
 	/**
 	 * This is our connection
 	 */
@@ -57,6 +46,5 @@ public class DynamoConnector {
 			client.shutdown();
 			client = null;
 		}
-		logger.info("Shut down DynamoDB factory");
 	}
 }
