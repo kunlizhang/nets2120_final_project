@@ -6,3 +6,17 @@
     overflow: hidden;
     border: solid;
 }
+
+.bs-tooltip-top .arrow::before, .bs-tooltip-auto[x-placement^="top"] .arrow::before {
+    border-top-color: #000 !important;
+    visibility: hidden;
+}
+
+.tooltip-inner {
+    background-color: #fff !important;
+    border: 1px solid #000;
+}
+
+.tooltip-text {
+    color: #000;
+}

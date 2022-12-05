@@ -364,7 +364,7 @@ var expandUser = function(req, res) {
                 db.get_user_info(friend_login, function(data) {
                     let info = data.Items[0];
                     let name = info.firstname.S + " " + info.lastname.S;
-                    resolve({"id": friend_login, "name": name, "data": {}, "children": []})
+                    resolve({"id": friend_login, "name": name, "data": {"affiliation": info.affiliation.S}, "children": []})
                 });
             });
             promises.push(promise);
@@ -373,7 +373,7 @@ var expandUser = function(req, res) {
             db.get_user_info(user, function(data) {
                 let info = data.Items[0];
                 let name = info.firstname.S + " " + info.lastname.S;
-                let json = {"id": user, "name": name, "data": {}, "children": children}
+                let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": children}
                 res.send(json);
             });
         });

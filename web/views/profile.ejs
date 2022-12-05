@@ -444,11 +444,13 @@
 					<% } %>
 				</ul>
 			</div>
+      <% if (curr_user === login) { %>
       <div class="col-sm-2">
         <form action="/friendvisualizer" method="get" class="form">
           <button type="submit" class="btn btn-primary" style="white-space: nowrap">See Friend Visualization</button>
         </form>
       </div>
+      <% } %>
 		</div>
 		<h1>
 			Wall
