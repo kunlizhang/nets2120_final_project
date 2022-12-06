@@ -1,2 +1,2 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:~/apache-maven-3.8.6/bin:~/jdk-11.0.16.1/bin
-0 * * * * cd ~/G36 && ./run_alg.sh >> ~/cron_output.txt 2>&1 
+0 * * * * cd ~/G36 && ./scripts/run_alg.sh >> ~/cron_output.txt 2>&1 
