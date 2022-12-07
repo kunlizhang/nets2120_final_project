@@ -7,7 +7,7 @@ var db = new AWS.DynamoDB();
  * Queries for news feed
  */
 
-// Gets all the news articles stored in the adsorption algorithm table for this user
+// Gets a single news article that the user has not seen and returns it. Sets seen to true for this article
 var getNewsArticles = function(login, callback) {
     var params = {
         KeyConditions: {
@@ -23,20 +23,73 @@ var getNewsArticles = function(login, callback) {
         if (err) {
             console.log(err);
         } else {
-            var todaysArticles = [];
+            var todaysArticles = {};
             var today = new Date(Date.now() - 18000000);
             today.setUTCHours(0, 0, 0, 0);
             data.Items.forEach(function(article) {
                 var articleDate = new Date(article.date.S);
-                // if (articleDate.getFullYear() == today.getFullYear() && articleDate.getMonth() == today.getMonth() && articleDate.getDate() == today.getDate()) {
-                //     todaysArticles.push(article);
-                // }
-                // TODO: Do date checking when Spark job is running periodically
-                todaysArticles.push(article);
+                if (articleDate.getFullYear() == today.getFullYear() && articleDate.getMonth() == today.getMonth() && articleDate.getDate() == today.getDate()) {
+                    todaysArticles[article.article_id.S] = article;
+                }
             });
-            callback(todaysArticles);
+
+            var seenPromises = [];
+
+            Object.values(todaysArticles).forEach(function(article) {
+                var params = {
+                    KeyConditions: {
+                        login: {
+                            ComparisonOperator: 'EQ',
+                            AttributeValueList: [ { S: login } ]
+                        },
+                        article_id: {
+                            ComparisonOperator: 'EQ',
+                            AttributeValueList: [ { S: article.article_id.S} ]
+                        },
+                    },
+                    TableName: 'news_seen',
+                    AttributesToGet: ['article_id'],
+                };
+
+                seenPromises.push(db.query(params).promise());
+            });
+
+            Promise.all(seenPromises).then(
+                successData => {
+                    successData.forEach(function(seenData) {
+                        if (seenData.Count > 0) {
+                            delete todaysArticles[seenData.Items[0].article_id.S];
+                        }
+                    });
+                    var chosenIndex = weightedRandom(Object.values(todaysArticles));
+                    setArticleSeen(login, Object.values(todaysArticles)[chosenIndex].article_id.S, function() {
+                        callback([Object.values(todaysArticles)[chosenIndex]]);
+                    });
+                },
+                error => {
+                    console.log(error);
+                }
+            );
         }
     });
+}
+
+// Weighted random distribution choose: returns chosen index
+function weightedRandom(articles) {
+    var i;
+    var cumWeights = [];
+
+    for (i = 0; i < articles.length; i++) {
+        cumWeights.push(articles[i].weight.N);
+    }
+
+    var random = Math.random() * cumWeights[cumWeights.length - 1];
+
+    for (i = 0; i < cumWeights.length; i++) {
+        if (random < cumWeights[i]) {
+            return i;
+        }
+    }
 }
 
 var getNewsFeed = function(login, callback) {
@@ -223,18 +276,26 @@ var setArticleSeen = function(login, article_id, callback) {
 
 var getArticleSeen = function(login, article_id, callback) {
     var params = {
-        Key: {
-            'login': { S: login },
-            'article_id': { S: article_id }
+        KeyConditions: {
+            login: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: login } ]
+            },
+            article_id: {
+                ComparisonOperator: 'EQ',
+                AttributeValueList: [ { S: article_id} ]
+            },
         },
-        TableName: 'news_seen'
+        TableName: 'news_seen',
+        AttributesToGet: ['article_id'],
     };
     
-    db.getItem(params, function(err, data) {
+    db.query(params, function(err, data) {
         if (err) {
             console.log(err);
         } else {
-            callback(data.Item);
+            console.log(data);
+            callback(data.Items);
         }
     });
 }

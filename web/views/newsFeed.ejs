@@ -13,7 +13,6 @@
 	<link rel="stylesheet" href="/css/search.css">
 	<script src="/js/search.js"></script>
 </head>
-
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
 		<a class="navbar-brand" href="/homepage">PennBook</a>
@@ -62,8 +61,8 @@
         <div class="card">
             <h5 class="card-header">
                 <span>
-                    <button id="like-button-<%=article.article_id.S%>" class="btn">
-                        <i id='friend_icon-<%=article.article_id.S%>' class="bi bi-heart"></i>
+                    <button id="like-button-<%=article.article_id.S%>" class="btn" onclick="toggleLike('<%=article.article_id.S%>')">
+                        <i id='friend_icon-<%=article.article_id.S%>' class="bi bi-heart" style="color:red;"></i>
                     </button>
                 </span>
                 <a href="<%=article.link.S%>"><%=article.headline.S%></a>
@@ -85,5 +84,35 @@
 </body>
 <script>
 	autocomplete(document.getElementById("user-search"));
+
+    function toggleLike(article_id) {
+        var like_button = document.getElementById("like-button-" + article_id);
+        var like_icon = document.getElementById("friend_icon-" + article_id);
+        if (like_icon.classList.contains("bi-heart")) {
+            $.ajax({
+                url: "/likeArticle",
+                type: "POST",
+                data: {
+                    article_id: article_id
+                },
+                success: function (data) {
+                    like_icon.classList.remove("bi-heart");
+                    like_icon.classList.add("bi-heart-fill");
+                }
+            })
+        } else {
+            $.ajax({
+                url: "/unlikeArticle",
+                type: "POST",
+                data: {
+                    article_id: article_id
+                },
+                success: function (data) {
+                    like_icon.classList.remove("bi-heart-fill");
+                    like_icon.classList.add("bi-heart");
+                }
+            })
+        }
+    }
 </script>
 </html>

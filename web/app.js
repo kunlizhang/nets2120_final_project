@@ -27,8 +27,6 @@ io.on("connection", function(socket) {
 	});
 });
 
-
-
 /**
  * Routes for user
  */
@@ -93,6 +91,8 @@ app.post('/getOnlineFriends', chatRoutes.get_online_friends);
  */
 app.get('/newsfeed', newsRoutes.get_news_feed);
 app.post('/newsSearch', newsRoutes.search_articles);
+app.post('/likeArticle', newsRoutes.like_news_article);
+app.post('/unlikeArticle', newsRoutes.unlike_news_article);
 
 /**
  * Routes for friend visualizer

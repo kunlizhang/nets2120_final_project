@@ -1,4 +1,5 @@
 const { application } = require('express');
+const { like_news_article } = require('../models/news_database.js');
 var db = require('../models/news_database.js');
 
 /**
@@ -34,9 +35,25 @@ var searchArticles = function(req, res) {
     }
 }
 
+var likeNewsArticle = function(req, res) {
+    let login = req.session.login;
+    db.like_news_article(login, req.body.article_id, function() {
+        res.send({result: 0});
+    });
+}
+
+var unlikeNewsArticle = function(req, res) {
+    let login = req.session.login;
+    db.unlike_news_article(login, req.body.article_id, function() {
+        res.send({result: 0});
+    });
+}
+
 var routes = {
     get_news_feed: getNewsFeed,
-    search_articles: searchArticles
+    search_articles: searchArticles,
+    like_news_article: likeNewsArticle,
+    unlike_news_article: unlikeNewsArticle
 };
 
 module.exports = routes;
