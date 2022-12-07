@@ -283,6 +283,54 @@
 	  });
   }
   
+  function changeAffiliation() {
+	  let newAffiliation = $('#aff-input').val();
+	  $.ajax({
+      type: "POST",
+      url: '/changeAffiliation',
+      data: {
+        affiliation: newAffiliation,
+      },
+      success: function(data) {
+    	  if (data.result == 0) {
+    	    $('#affiliation').text(newAffiliation);
+    	  }
+    	  $('#aff-input').val("");
+      }
+    });
+  }
+  
+  function changeEmail() {
+    let newEmail = $('#email-input').val();
+    $.ajax({
+      type: "POST",
+      url: '/changeEmail',
+      data: {
+        email: newEmail,
+      },
+      success: function(data) {
+    	  if (data.result == 0) {
+    		  $('#email').text(newEmail);
+    	  }
+        $('#email-input').val("");
+      }
+    });
+  }
+  
+  function changePassword() {
+    let newPassword = $('#pass-input').val();
+    $.ajax({
+      type: "POST",
+      url: '/changePassword',
+      data: {
+        password: newPassword,
+      },
+      success: function(data) {
+        $('#pass-input').val("");
+      }
+    });
+  }
+  
   $(document).ready(function() {
 	  mostRecentPost = $('ul#posts li:first').find("#timestamp").attr('name');
 	  let currFriends = $('ul#friendlist li')
@@ -361,60 +409,54 @@
 			<div class="col-sm-2">
 				Birthday: 
 			</div>
-			<div class="col-sm-4">
+			<div class="col-sm-4" id="birthday">
 				<%= birthday%>
 			</div>
 		</div>
-		<form action="/changeAffiliation" method="post" class="form">
-			<div class="row mt-2">
-				<div class="col-sm-2">
-					Affiliation: 
-				</div>
-				<div class="col-sm-4">
-					<%= affiliation%>
-				</div>
-				<% if (curr_user === login) { %>
-				<div class="col-sm-4">
-					<input type="text" class="form-control" name="affiliation" placeholder="New Affiliation">
-				</div>
-				<div class="col-sm-2">
-					<button type="submit" class="btn btn-primary">Change Affiliation</button>
-				</div>
-				<% } %>
+		<div class="row mt-2">
+			<div class="col-sm-2">
+				Affiliation: 
 			</div>
-		</form>
-		<form action="/changeEmail" method="post" class="form">
-			<div class="row mt-2">
-				<div class="col-sm-2">
-					Email: 
-				</div>
-				<div class="col-sm-4">
-					<%= email%>
-				</div>
-				<% if (curr_user === login) { %>
-				<div class="col-sm-4">
-					<input type="text" class="form-control" name="email" placeholder="New Email">
-				</div>
-				<div class="col-sm-2">
-					<button type="submit" class="btn btn-primary">Change Email</button>
-				</div>
-				<% } %>
+			<div class="col-sm-4" id="affiliation">
+				<%= affiliation%>
 			</div>
-		</form>
-		<form action="/changePassword" method="post" class="form">
-			<div class="row mt-2">
-				<div class="col-sm-6">
-				</div>
-				<% if (curr_user === login) { %>
-				<div class="col-sm-4">
-					<input type="password" class="form-control" name="password" placeholder="New Password">
-				</div>
-				<div class="col-sm-2">
-					<button type="submit" class="btn btn-primary">Change Password</button>
-				</div>
-				<% } %>
+			<% if (curr_user === login) { %>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" name="affiliation" id="aff-input" placeholder="New Affiliation">
 			</div>
-		</form>
+			<div class="col-sm-2">
+        <button class="btn btn-primary" onclick="changeAffiliation()">Change Affiliation</button>
+			</div>
+			<% } %>
+		</div>
+		<div class="row mt-2">
+			<div class="col-sm-2">
+				Email: 
+			</div>
+			<div class="col-sm-4" id="email">
+				<%= email%>
+			</div>
+			<% if (curr_user === login) { %>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" name="email" id="email-input" placeholder="New Email">
+			</div>
+			<div class="col-sm-2">
+				<button class="btn btn-primary" onclick="changeEmail()">Change Email</button>
+			</div>
+			<% } %>
+		</div>
+		<div class="row mt-2">
+			<div class="col-sm-6">
+			</div>
+			<% if (curr_user === login) { %>
+			<div class="col-sm-4">
+				<input type="password" class="form-control" name="password" id="pass-input" placeholder="New Password">
+			</div>
+			<div class="col-sm-2">
+        <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+			</div>
+			<% } %>
+		</div>
 		<form action="/changeInterests" method="post" class="form">
 			<div class="row mt-2">
 				<div class="col-sm-2">

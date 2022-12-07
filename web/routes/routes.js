@@ -205,27 +205,36 @@ var deleteFriends = function(req, res) {
 
 var changeAffiliation = function(req, res) {
     var login = req.session.login;
-    var affiliation = req.body.affiliation; 
-
-    db.change_affiliation(login, affiliation, function() {
-        db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
-            res.redirect("/profile")
+    var affiliation = req.body.affiliation.trim();
+    if (affiliation == null || affiliation == "") {
+        res.send({result: 1});
+    } else {
+        db.change_affiliation(login, affiliation, function() {
+            db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
+                res.send({result: 0});
+            });
         });
-    }); 
+    }
 }
 
 var changeEmail = function(req, res) {
     var login = req.session.login;
-    var email = req.body.email; 
-
-    db.change_email(login, email, function() {res.redirect("/profile")}); 
+    var email = req.body.email.trim();
+    if (email == null || email == "") {
+        res.send({result: 1});
+    } else {
+        db.change_email(login, email, function() {res.send({result: 0})});
+    }
 }
 
 var changePassword = function(req, res) {
     var login = req.session.login;
-    var password = req.body.password; 
-
-    db.change_password(login, password, function() {res.redirect("/profile")});
+    var password = req.body.password.trim();
+    if (password == null || password == "") {
+        res.send({result: 1});
+    } else {
+        db.change_password(login, password, function() {res.send({result: 0})});
+    }
 }
 
 var changeInterests = function(req, res) {

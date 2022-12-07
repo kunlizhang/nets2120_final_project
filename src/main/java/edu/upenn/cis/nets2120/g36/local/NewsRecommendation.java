@@ -254,7 +254,7 @@ public class NewsRecommendation {
 				newsTableName, 
 				Arrays.asList(new KeySchemaElement("login", KeyType.HASH), new KeySchemaElement("article_id", KeyType.RANGE)),
 				Arrays.asList(new AttributeDefinition("login", ScalarAttributeType.S), new AttributeDefinition("article_id", ScalarAttributeType.S)),
-				new ProvisionedThroughput(10L, 10L)
+				new ProvisionedThroughput(10L, 20L)
 			);
 			
 			weightsTable.waitForActive();
