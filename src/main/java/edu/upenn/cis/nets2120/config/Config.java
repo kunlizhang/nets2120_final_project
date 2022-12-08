@@ -17,6 +17,8 @@ public class Config {
 	
 	public static String DYNAMODB_URL = "https://dynamodb.us-east-1.amazonaws.com";
 	
+	public static String EC2_URL = "http://ec2-3-89-194-123.compute-1.amazonaws.com:8998/";
+	
 	public static String NEWS_DATASET_PATH = "files/News_Category_Dataset_v2.json";
 	
 	/**

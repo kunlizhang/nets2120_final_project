@@ -27,8 +27,6 @@ io.on("connection", function(socket) {
 	});
 });
 
-
-
 /**
  * Routes for user
  */
@@ -87,11 +85,21 @@ app.post('/deletePrivateInvite', chatRoutes.delete_private_invite);
 app.post('/acceptGroup', chatRoutes.accept_group_invite);
 app.post('/deleteGroupInvite', chatRoutes.delete_group_invite);
 app.post('/leaveChat', chatRoutes.leave_chat);
+app.post('/getOnlineFriends', chatRoutes.get_online_friends);
 
 /**
  * Routes for news feed
  */
 app.get('/newsfeed', newsRoutes.get_news_feed);
+app.post('/newsSearch', newsRoutes.search_articles);
+app.post('/likeArticle', newsRoutes.like_news_article);
+app.post('/unlikeArticle', newsRoutes.unlike_news_article);
+
+/**
+ * Routes for friend visualizer
+ */
+app.get('/friendvisualizer', routes.friend_visualizer);
+app.post('/expandUser', routes.expand_user);
 
 http.listen(8080);
 console.log('Server running on port 8080.')

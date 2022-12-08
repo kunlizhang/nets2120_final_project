@@ -22,6 +22,10 @@
         </excludes>
     </fileSet>
     <fileSet>
+      <outputDirectory>/scripts</outputDirectory>
+      <directory>scripts</directory>
+    </fileSet>
+    <fileSet>
       <outputDirectory>/</outputDirectory>
       <directory>${project.basedir}</directory>
       <includes>

@@ -11,6 +11,7 @@
 </head>
 
 <script>
+  var onlineFriendsList = [];
 	var chat_id = window.location.href.split('id=')[1];
 	var socket = io();
 	
@@ -40,6 +41,37 @@
 		time_sent += "0";
 	}
 	
+	function updateOnlineFriends() {
+		$.ajax({
+      type: "POST",
+      url: '/getOnlineFriends',
+      data: {},
+      success: function(data) {
+        let updatedFriends = data.online_friends;
+        for (var i = 0; i < onlineFriendsList.length; i++) {
+          let friend = onlineFriendsList[i];
+          if (!updatedFriends.includes(friend)) {
+            $('#friend-' + friend).remove();
+            onlineFriendsList.splice(i, 1);
+            i--;
+          }
+        }
+        updatedFriends.forEach(friend => {
+          if (!onlineFriendsList.includes(friend)) {                
+        	  var newFriend = document.createElement("li");
+      	    newFriend.setAttribute("id", "friend-" + friend);
+      	    var text = document.createElement("a");
+      	    text.setAttribute("href", "/profile/" + friend);
+      	    text.innerText = friend;
+      	    newFriend.appendChild(text);
+      	    $('#onlinefriends').prepend(newFriend);
+      	    onlineFriendsList.push(friend);
+          }
+        });
+      }
+    });
+	}
+	
 	$(document).ready(function () {
 		socket.emit("join room", {
 			room: chat_id
@@ -67,6 +99,16 @@
 				scrollTop: $('#messages').get(0).scrollHeight
 			}, 0);
 		});
+		
+    let currOnlineFriends = $('ul#onlinefriends li')
+    currOnlineFriends.each(function(idx, li) {
+    	onlineFriendsList.push($(li).find('a').text().trim());
+    });
+    
+    updateOnlineFriends();
+    setInterval(function() {
+    	updateOnlineFriends();
+    }, 10000);
 	});
 </script>
 <body>
@@ -127,14 +169,13 @@
 	<div class="container">
 		<div>
 			<h3>Online friends</h3>
-	        <ul>
-	            <% for (friend of online_friends) {%>
-	                <li>
-	                    <a href="/profile/<%=friend%>"><%= friend%></a>
-	                </li>
-	            <% } %>
-	        </ul>
-		
+      <ul id="onlinefriends">
+          <% for (friend of online_friends) {%>
+              <li id="friend-<%= friend %>">
+                  <a href="/profile/<%= friend %>"><%= friend %></a>
+              </li>
+          <% } %>
+      </ul>
 	</div>
 </body>
 <script>

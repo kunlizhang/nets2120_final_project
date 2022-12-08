@@ -1,4 +1,5 @@
 const { application } = require('express');
+const { exec } = require('child_process');
 var db = require('../models/database.js');
 
 /**
@@ -204,27 +205,36 @@ var deleteFriends = function(req, res) {
 
 var changeAffiliation = function(req, res) {
     var login = req.session.login;
-    var affiliation = req.body.affiliation; 
-
-    db.change_affiliation(login, affiliation, function() {
-        db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
-            res.redirect("/profile")
+    var affiliation = req.body.affiliation.trim();
+    if (affiliation == null || affiliation == "") {
+        res.send({result: 1});
+    } else {
+        db.change_affiliation(login, affiliation, function() {
+            db.add_post(login, login + " changed their affiliation to " + affiliation, new Date().toJSON(), function() {
+                res.send({result: 0});
+            });
         });
-    }); 
+    }
 }
 
 var changeEmail = function(req, res) {
     var login = req.session.login;
-    var email = req.body.email; 
-
-    db.change_email(login, email, function() {res.redirect("/profile")}); 
+    var email = req.body.email.trim();
+    if (email == null || email == "") {
+        res.send({result: 1});
+    } else {
+        db.change_email(login, email, function() {res.send({result: 0})});
+    }
 }
 
 var changePassword = function(req, res) {
     var login = req.session.login;
-    var password = req.body.password; 
-
-    db.change_password(login, password, function() {res.redirect("/profile")});
+    var password = req.body.password.trim();
+    if (password == null || password == "") {
+        res.send({result: 1});
+    } else {
+        db.change_password(login, password, function() {res.send({result: 0})});
+    }
 }
 
 var changeInterests = function(req, res) {
@@ -241,6 +251,10 @@ var changeInterests = function(req, res) {
                     db.add_post(login, login + " added " + new_interest + " to their interests", new Date().toJSON(), function() {});
                 }
             }
+            
+            // exec("./scripts/run_alg.sh", { cwd: '../' }, (error, stdout, stderr) => {
+            //     console.log(`stdout:\n${stdout}`);
+            // });
             res.redirect("/profile");
         });
     }); 
@@ -315,7 +329,6 @@ var makeComment = function(req, res) {
 /**
  * Routes for homepage
  */
-
 var getHomepage = function(req, res) {
     let login = req.session.login;
     if (!login) {
@@ -336,6 +349,53 @@ var getHomepage = function(req, res) {
             });
         });
     }
+}
+
+/**
+ * Routes for visualizer
+ */
+var friendVisualizer = function(req, res) {
+    if (!req.session.login) {
+        res.redirect('/');
+    } else {
+        res.render('friendvisualizer.ejs', {login: req.session.login});
+    }
+}
+
+var expandUser = function(req, res) {
+    let user = req.body.user;
+    let root_user = req.body.root_user;
+    db.get_friends_info(user, function(friends) {
+        let promises = [];
+        friends.forEach(elem => {
+            let friend_login = elem.friend_login.S;
+            let promise = new Promise((resolve, reject) => {
+                db.get_user_info(friend_login, function(data) {
+                    let info = data.Items[0];
+                    let name = info.firstname.S + " " + info.lastname.S;
+                    resolve({"id": friend_login, "name": name, "data": {"affiliation": info.affiliation.S}, "children": []})
+                });
+            });
+            promises.push(promise);
+        });
+        Promise.all(promises).then(friends => {
+            db.get_user_info(user, function(userData) {
+                let info = userData.Items[0];
+                let name = info.firstname.S + " " + info.lastname.S;
+                if (user == root_user) {
+                    let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": friends}
+                    res.send(json);
+                } else {
+                    db.get_user_info(root_user, function(rootUserData) {
+                        let root_user_affiliation = rootUserData.Items[0].affiliation.S;
+                        friends = friends.filter(friend => friend.data.affiliation == root_user_affiliation);
+                        let json = {"id": user, "name": name, "data": {"affiliation": info.affiliation.S}, "children": friends}
+                        res.send(json);
+                    });
+                }
+            });
+        });
+    });
 }
 
 var routes = {
@@ -361,6 +421,8 @@ var routes = {
     make_comment: makeComment,
     get_posts: getPosts,
     get_friends: getFriends,
+    friend_visualizer: friendVisualizer,
+    expand_user: expandUser,
 };
 
 module.exports = routes;

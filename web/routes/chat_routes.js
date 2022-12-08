@@ -121,12 +121,16 @@ var showChat = function(req, res) {
 				} else {
 					res.redirect('/homepage');
 				}
-				
 			}
-		});	
-		
+		});
 	}
-	
+}
+
+var getOnlineFriends = function(req, res) {
+  var user = req.session.login;
+  main_db.get_online_friends(user, function(data) {
+    res.send({online_friends: data});
+  });
 }
 
 var addMessage = function(req, res) {
@@ -280,7 +284,8 @@ var routes = {
 	delete_private_invite: deletePrivateInvite,
 	accept_group_invite: acceptGroupInvite,
 	delete_group_invite: deleteGroupInvite,
-	leave_chat: leaveChat
+	leave_chat: leaveChat,
+	get_online_friends: getOnlineFriends
 };
 
 module.exports = routes;

@@ -27,7 +27,6 @@ import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.ResourceInUseException;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 
 import edu.upenn.cis.nets2120.config.Config;
@@ -124,8 +123,10 @@ public class NewsRecommendation {
 	
 	/**
 	 * Loads graph data from DynamoDB
+	 * 
+	 * @param daysHistory -1 if consider all days prior to current, x if consider x days before
 	 */
-	void loadDataDynamo() {
+	void loadDataDynamo(int daysHistory) {
 		db = DynamoConnector.getConnection(Config.DYNAMODB_URL);
 		artDates = new HashMap<>();
 				
@@ -141,7 +142,7 @@ public class NewsRecommendation {
 			LocalDate rowDate = LocalDate.parse(row.getString("date"));
 			String id = row.getString("article_id");
 
-			if (rowDate.isBefore(today.minusDays(14)) || rowDate.isAfter(today)) {
+			if ((daysHistory != -1 && rowDate.isBefore(today.minusDays(daysHistory))) || rowDate.isAfter(today)) {
 				continue;
 			}
 			
@@ -253,7 +254,7 @@ public class NewsRecommendation {
 				newsTableName, 
 				Arrays.asList(new KeySchemaElement("login", KeyType.HASH), new KeySchemaElement("article_id", KeyType.RANGE)),
 				Arrays.asList(new AttributeDefinition("login", ScalarAttributeType.S), new AttributeDefinition("article_id", ScalarAttributeType.S)),
-				new ProvisionedThroughput(10L, 10L)
+				new ProvisionedThroughput(10L, 20L)
 			);
 			
 			weightsTable.waitForActive();
@@ -334,13 +335,13 @@ public class NewsRecommendation {
 	 * @throws DynamoDbException DynamoDB is unhappy with something
 	 * @throws InterruptedException User presses Ctrl-C
 	 */
-	public void run(boolean localData, boolean debug) throws IOException, InterruptedException {
+	public void run(int daysHistory, boolean localData, boolean debug) throws IOException, InterruptedException {
 		logger.info("Running");
 		
 		if (localData) {
 			loadDataLocal(Config.LOCAL_NEWS_DATA_PATH);
 		} else {
-			loadDataDynamo();
+			loadDataDynamo(daysHistory);
 		}
 		
 		if (debug) {
@@ -391,12 +392,19 @@ public class NewsRecommendation {
 		// Keep only labels on users
 		labels = labels.filter(t -> t._1._2.equals("USER"));
 		
-		System.out.println("FINISHED");
-		labels.foreach(t -> System.out.println(t));
+		System.out.println("RESOLVING");
+		System.out.println("Resolved " + labels.count() + " labels");
+		
+		if (debug) {
+			labels.foreach(t -> System.out.println(t));
+		}
 		
 		if (!localData) {
+			System.out.println("UPLOADING");
 			uploadLabels(labels);
 		}
+		
+		System.out.println("FINISHED");
 	}
 
 
@@ -415,18 +423,23 @@ public class NewsRecommendation {
 		final NewsRecommendation nr = new NewsRecommendation();
 		
 		// Get command line arguments
+		int daysHistory = 14;
 		boolean localData = false;
 		boolean debug = false;
 		
 		for (String arg : args) {
 			if (arg.equals("local")) localData = true;
 			if (arg.equals("debug")) debug = true;
+			try {
+				int parsed = Integer.parseInt(arg);
+				daysHistory = parsed;
+			} catch (NumberFormatException e) { }
 		}
 		
 		try {
 			nr.initialize();
 			
-			nr.run(localData, debug);
+			nr.run(daysHistory, localData, debug);
 		} catch (final IOException ie) {
 			logger.error("I/O error: ");
 			ie.printStackTrace();

@@ -7,7 +7,52 @@
 	<meta name='viewport' content='width=device-width, initial-scale=1'></meta>
 	<link rel="stylesheet" href="/css/search.css">
 </head>
-
+<script>
+  var onlineFriendsList = [];
+  
+  function updateOnlineFriends() {
+    $.ajax({
+      type: "POST",
+      url: '/getOnlineFriends',
+      data: {},
+      success: function(data) {
+        let updatedFriends = data.online_friends;
+        for (var i = 0; i < onlineFriendsList.length; i++) {
+          let friend = onlineFriendsList[i];
+          if (!updatedFriends.includes(friend)) {
+            $('#friend-' + friend).remove();
+            onlineFriendsList.splice(i, 1);
+            i--;
+          }
+        }
+        updatedFriends.forEach(friend => {
+          if (!onlineFriendsList.includes(friend)) {                
+            var newFriend = document.createElement("li");
+            newFriend.setAttribute("id", "friend-" + friend);
+            var text = document.createElement("a");
+            text.setAttribute("href", "/profile/" + friend);
+            text.innerText = friend;
+            newFriend.appendChild(text);
+            $('#onlinefriends').prepend(newFriend);
+            onlineFriendsList.push(friend);
+          }
+        });
+      }
+    });
+  }
+  
+  $(document).ready(function () {
+	    let currOnlineFriends = $('ul#onlinefriends li')
+	    currOnlineFriends.each(function(idx, li) {
+	      onlineFriendsList.push($(li).find('a').text().trim());
+	    });
+	    console.log(onlineFriendsList);
+	    updateOnlineFriends();
+	    setInterval(function() {
+	      updateOnlineFriends();
+	    }, 10000);
+	  });
+</script>
 <body>
 	<!-- This is a simple example template with a form that has a single input field. 
 		   You'll need something similar for the login page -->
@@ -74,10 +119,10 @@
           <% }); %>
         </table>
         <h3>Online friends</h3>
-        <ul>
+        <ul id="onlinefriends">
             <% for (friend of online_friends) {%>
-                <li>
-                    <a href="/profile/<%=friend%>"><%= friend%></a>
+                <li id="friend-<%= friend %>">
+                    <a href="/profile/<%= friend %>"><%= friend %></a>
                 </li>
             <% } %>
         </ul>
