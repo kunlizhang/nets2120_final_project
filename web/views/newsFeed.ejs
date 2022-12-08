@@ -55,6 +55,38 @@
                 </div>
             </div>
         </form>
+
+        <% if (news.length == 0) { %>
+        <br>
+        <div class="card">
+            <h5 class="card-header">
+                Woah! You read all the articles for today!
+            </h5>
+            <div class="card-body">
+                <p class="card-subtitle text-muted">
+                    We get it you read.
+                </p>
+                <p class="card-text">
+                    Actually, it might just be our adsorption algorithm hasn't run yet today... In the meantime, here's a fake article!
+                </p>
+            </div>
+        </div>
+        <br>
+        <div class="card">
+            <h5 class="card-header">
+                <a href="/">Daniel Xue finally does some work on the NETS 2120 Project!</a>
+                <span class="badge badge-info">BREAKING NEWS</span>
+            </h5>
+            <div class="card-body">
+                <p class="card-subtitle text-muted">
+                    Kunli Zhang
+                </p>
+                <p class="card-text">
+                    Daniel Xue, who usually does not do any work in his NETS 2120 group, finally did some work! Everyone was shocked, but they were also happy that he finally did some work.
+                </p>
+            </div>
+        </div>
+        <% } %>
 		
         <% for (article of news) {%>
         <br>

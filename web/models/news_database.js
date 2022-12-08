@@ -33,6 +33,10 @@ var getNewsArticles = function(login, callback) {
                 }
             });
 
+            if (!Object.keys(todaysArticles).length) {
+                callback([]);
+                return;
+            }
             var seenPromises = [];
 
             Object.values(todaysArticles).forEach(function(article) {
@@ -53,6 +57,7 @@ var getNewsArticles = function(login, callback) {
 
                 seenPromises.push(db.query(params).promise());
             });
+
 
             Promise.all(seenPromises).then(
                 successData => {
