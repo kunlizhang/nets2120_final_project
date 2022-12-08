@@ -252,6 +252,23 @@ var deleteGroupInvite = function(req, res) {
 	});
 }
 
+var leaveChat = function(req, res) {
+	if (!req.session.login) {
+		res.redirect('/');
+	}
+	var user = req.session.login;
+	var chat_id = req.query.chat_id; // same as above
+	db.leaveChat(user, chat_id, function(err, data) {
+		if (err) {
+			console.log(err);
+			res.redirect('/createChat?error=2');
+		} else {
+			console.log("Left chat: " + chat_id + ".");
+			res.send({success: true}); // same as above
+		}
+	});
+}
+
 var routes = {
 	get_create_chat: getCreateChat,
 	make_chat: makeChat,
@@ -262,7 +279,8 @@ var routes = {
 	accept_private_invite: acceptChatInvitePrivate,
 	delete_private_invite: deletePrivateInvite,
 	accept_group_invite: acceptGroupInvite,
-	delete_group_invite: deleteGroupInvite
+	delete_group_invite: deleteGroupInvite,
+	leave_chat: leaveChat
 };
 
 module.exports = routes;

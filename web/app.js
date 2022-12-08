@@ -86,6 +86,7 @@ app.post('/acceptPrivate', chatRoutes.accept_private_invite);
 app.post('/deletePrivateInvite', chatRoutes.delete_private_invite);
 app.post('/acceptGroup', chatRoutes.accept_group_invite);
 app.post('/deleteGroupInvite', chatRoutes.delete_group_invite);
+app.post('/leaveChat', chatRoutes.leave_chat);
 
 /**
  * Routes for news feed

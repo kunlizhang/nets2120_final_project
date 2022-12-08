@@ -387,7 +387,7 @@ var myDB_accept_private_invite = function(user, sender, callback) {
 
 var myDB_delete_private_invite = function(user, sender, callback) {
 	var params = {
-      Item: {
+      Key: {
        "user": {
           S: user
         },
@@ -396,7 +396,6 @@ var myDB_delete_private_invite = function(user, sender, callback) {
 		}
       },
       TableName: 'chat_invites_new',
-      ReturnValues: 'NONE'
     };
     
     db.deleteItem(params, function(err, data) {
@@ -429,7 +428,7 @@ var myDB_accept_group_invite = function(user, chat_id, callback) {
 var myDB_delete_group_invite = function(user, chat_id, callback) {
 	
 	var params = {
-      Item: {
+      Key: {
        "user": {
           S: user
         },
@@ -438,7 +437,6 @@ var myDB_delete_group_invite = function(user, chat_id, callback) {
 		}
       },
       TableName: 'group_chat_invites',
-      ReturnValues: 'NONE'
     };
     
     db.deleteItem(params, function(err, data) {
@@ -448,6 +446,112 @@ var myDB_delete_group_invite = function(user, chat_id, callback) {
 			callback(err, "Success");
 		}
 	});
+}
+
+var myDB_leave_chat = function(user, chat_id, callback) {
+	var params = {
+      Key: {
+       "user": {
+          S: user
+        },
+        "chat_id": {
+		  S: chat_id
+		}
+      },
+      TableName: 'chat_users',
+    };
+    db.deleteItem(params, function(err, data) {
+		if (err) {
+			callback(err, null);
+		} else {
+			var params2 = {
+		      Key: {
+		       "login": {
+		          S: user
+		        },
+		        "chat_id": {
+				  S: chat_id
+				}
+		      },
+		      TableName: 'user_in_chat',
+		    };
+		    db.deleteItem(params2, function(err2, data2) {
+				if (err2) {
+					callback(err2, null);
+				} else {
+					// check if chat was private or group
+					var params3 = {
+				      Key: {
+						'chat_id': {S: chat_id}
+					  },
+				      TableName: 'group_chat_invites',
+				    };
+					db.getItem(params3, function(err3, data3) {
+						if (err3) {
+							callback(err3, null);
+						} else {
+							// if private, delete chat
+							// if group, check that at least one user is still a member of the chat
+							if (data3.group_chat.S === 'false') {
+								var params4 = {
+							      Key: {
+							        "chat_id": {
+									  S: chat_id
+									}
+							      },
+							      TableName: 'chats',
+							    };
+							    db.deleteItem(params4, function(err4, data4) {
+									if (err4) {
+										callback(err4, null);
+									} else {
+										callback(null, "Success");
+									}
+								});
+							} else {
+								var params5 = {
+							      KeyConditions: {
+							        chat_id: {
+							          ComparisonOperator: 'EQ',
+							          AttributeValueList: [ {S: chat_id} ]
+							        },
+							      },
+							      TableName: "chat_users",
+							    };
+							    db.query(params5, function(err5, data5) {
+									if (err5) {
+										callback(err5, null);
+									} else {
+										// check for no items retrieved from query
+										if (data5.Items.length == 0) {
+											var params6 = {
+										      Key: {
+										        "chat_id": {
+												  S: chat_id
+												}
+										      },
+										      TableName: 'chats',
+										    };
+										    db.deleteItem(params6, function(err6, data6) {
+												if (err6) {
+													callback(err6, null);
+												} else {
+													callback(null, "Success");
+												}
+											});
+										} else {
+											callback(null, "Success");
+										}
+									}
+								});
+							}
+						}
+					});
+				}
+			})
+		}
+	});
+    
 }
 
 
@@ -465,7 +569,8 @@ var database = {
   acceptPrivateInvite: myDB_accept_private_invite,
   deletePrivateInvite: myDB_delete_private_invite,
   acceptGroupInvite: myDB_accept_group_invite,
-  deleteGroupInvite: myDB_delete_group_invite
+  deleteGroupInvite: myDB_delete_group_invite,
+  leaveChat: myDB_leave_chat
 };
 
 module.exports = database;
