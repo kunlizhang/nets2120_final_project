@@ -42,12 +42,10 @@ public class NewsLoader {
 	static Logger logger = LogManager.getLogger(NewsLoader.class);
 
     final static String newsTableName = "news";
-	final static String catTableName = "news_categories";
 	final static String kwdTableName = "news_keywords";
     
 	DynamoDB db;
 	Table newsTable;
-	Table catTable;
 	Table kwdTable;
 
 	BufferedReader newsArticles;
@@ -114,7 +112,7 @@ public class NewsLoader {
 		try {
 			newsTable = db.createTable(
 				newsTableName, 
-				Arrays.asList(new KeySchemaElement("article_id", KeyType.HASH)),																											// key
+				Arrays.asList(new KeySchemaElement("article_id", KeyType.HASH)),
 				Arrays.asList(new AttributeDefinition("article_id", ScalarAttributeType.S)),
 				new ProvisionedThroughput(100L, 100L)
 			);
@@ -122,20 +120,6 @@ public class NewsLoader {
 			newsTable.waitForActive();
 		} catch (final ResourceInUseException exists) {
 			newsTable = db.getTable(newsTableName);
-		}
-		
-		// Create categories table
-		try {
-			catTable = db.createTable(
-				catTableName,
-				Arrays.asList(new KeySchemaElement("category", KeyType.HASH), new KeySchemaElement("article_id", KeyType.RANGE)),
-				Arrays.asList(new AttributeDefinition("category", ScalarAttributeType.S), new AttributeDefinition("article_id", ScalarAttributeType.S)),
-				new ProvisionedThroughput(100L, 100L)
-			);
-			
-			catTable.waitForActive();
-		} catch (final ResourceInUseException exists) {
-			catTable = db.getTable(newsTableName);
 		}
 		
 		// Create keywords table
@@ -197,9 +181,7 @@ public class NewsLoader {
 			// Batch write if 25 items
 			if (newsItems.size() >= 25 || catItems.size() >= 25) {
 				batchWriteItems(newsItems, newsTableName);
-				batchWriteItems(catItems, catTableName);
 				newsItems = new LinkedList<>();
-				catItems = new LinkedList<>();
 			}
 			
 			// Read json and generate UUID from json, ensuring uuid is not duplicate
@@ -222,9 +204,6 @@ public class NewsLoader {
 				.withString("description", json.getString("short_description"))
 				.withString("date", date)
 			);
-			
-			// Add category item
-			catItems.add(new Item().withPrimaryKey("category", json.getString("category"), "article_id", uuid));
 			
 			// Tokenize and iterate over words in headline
 			String[] tok = tokenizer.tokenize(json.getString("headline"));
@@ -257,7 +236,6 @@ public class NewsLoader {
 		}
 		// Write remaining items not in set of 25
 		batchWriteItems(newsItems, newsTableName);
-		batchWriteItems(catItems, catTableName);
 		batchWriteItems(kwdItems, kwdTableName);
 		
 		logger.info("*** Finished reading news dataset! ***");
