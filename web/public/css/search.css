@@ -33,3 +33,78 @@
     background-color: DodgerBlue !important; 
     color: #ffffff; 
 }
+
+.message {
+	background-color: #fff;
+	border: 1px solid #e7eaec;
+	text-align: left;
+	display: block;
+	padding: 10px 20px;
+	position: relative;
+	border-radius: 4px;	
+}
+
+.chat-message {
+  padding: 10px 20px;
+}
+
+.chat-log .chat-message.left .date {
+  float: right;
+}
+.chat-log .chat-message.right .date {
+  float: left;
+}
+.chat-log .chat-message.left .message {
+  text-align: left;
+  margin-left: 55px;
+}
+.chat-log .chat-message.right .message {
+  text-align: right;
+  margin-right: 55px;
+}
+.date {
+  font-size: 10px;
+  color: #888888;
+}
+.content {
+  display: block;
+}
+
+.chat-log {
+  background: #eee;
+  padding: 15px;
+  height: 800px;
+  overflow-y: auto;
+}
+
+.author {
+	color: #0000ff;
+}
+
+.alert {
+  padding: 20px;
+  background-color: DodgerBlue !important;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+} 
+
+
+
+
+
+

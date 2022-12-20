@@ -14,6 +14,54 @@
   var onlineFriendsList = [];
 	var chat_id = window.location.href.split('id=')[1];
 	var socket = io();
+	var private_invites = [];
+	var group_invites = [];
+	
+	function updatePrivateInvites(initialize) {
+  	$.post('/getPrivateInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = private_invites[i];
+	          if (!updatedInvites.some(item => item.sender.S == invite.sender.S)) {
+	            private_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {
+	          if (!private_invites.some(item => item.sender.S == invite.sender.S)) {              
+	            private_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			private_invites = data.invites;
+  		}
+  	});
+  }
+  
+  function updateGroupInvites(initialize) {
+  	$.post('/getGroupInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = group_invites[i];
+	          if (!updatedInvites.some(item => item.chat_id.S == invite.chat_id.S)) {
+	            group_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {    
+	          if (!group_invites.some(item => item.chat_id.S == invite.chat_id.S)) {                
+	            group_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			group_invites = data.invites;
+  		}
+  	});
+  }
 	
 	function sendChat() {
 		const date = new Date(Date.now());
@@ -35,10 +83,27 @@
 					});
 					$('#input').val('');
 					$('#input').focus();
+				} else if (data.nochat) {
+					alert("The other user has left this chat, so it no longer exists. Please return to another page.");
+				} else {
+					alert("An error occurred while trying to send the message.");
 				}
 			});
 		}
 		time_sent += "0";
+	}
+	
+	function sendGroupChatInvite(username) {
+		$.post('/sendGroupInvite', {user: username, chat_id: chat_id}, function (data) {
+			if (!data.success) {
+				alert("An error occurred attempting to send the invite.");
+			}
+			if (data.in_chat) {
+				alert("User is already in this chat.");
+			} else {
+				alert("Invite successfully sent!");
+			}
+		}); 
 	}
 	
 	function updateOnlineFriends() {
@@ -64,6 +129,13 @@
       	    text.setAttribute("href", "/profile/" + friend);
       	    text.innerText = friend;
       	    newFriend.appendChild(text);
+      	    var button = document.createElement("button");
+      	    var button_text = document.createTextNode("Invite to this Chat");
+      	    button.appendChild(button_text);
+      	    button.setAttribute("id", "invite-btn");
+      	    button.setAttribute("class", "btn btn-light");
+      	    button.onclick = function(){sendGroupChatInvite(friend)};
+      	    newFriend.appendChild(button);
       	    $('#onlinefriends').prepend(newFriend);
       	    onlineFriendsList.push(friend);
           }
@@ -78,26 +150,38 @@
 		});
 		
 		socket.on('message sent', function(msg) {
-			var message_temp = document.createElement("li");
+			var message_temp = document.createElement("div");
 			if ($('#username').text() === msg.sender) {
-				message_temp.setAttribute("class", "me");
+				message_temp.setAttribute("class", "chat-message right");
 			} else {
-				message_temp.setAttribute("class", "other");
+				message_temp.setAttribute("class", "chat-message left");
 			}
-			message_temp.appendChild(document.createTextNode(msg.content));
-			var message_sender = document.createElement("li");
-			message_sender.appendChild(document.createTextNode(msg.sender));
-			var message_time = document.createElement("li");
-			message_time.appendChild(document.createTextNode(msg.time));
-			var message_divider = document.createElement("li");
-			message_divider.appendChild(document.createTextNode(" -------------------------------------------------"));
-			$('#messages').append(message_temp);
-			$('#messages').append(message_sender);
-			$('#messages').append(message_time);
-			$('#messages').append(message_divider);
-			$('#messages').animate({
-				scrollTop: $('#messages').get(0).scrollHeight
+			var message = document.createElement("div");
+			message.setAttribute("class", "message");
+			var author = document.createElement("span");
+			author.setAttribute("class", "author");
+			author.textContent = msg.sender;
+			var date = document.createElement("span");
+			date.setAttribute("class", "date");
+			date.textContent = msg.time;
+			var content = document.createElement("span");
+			content.setAttribute("class", "content");
+			content.textContent = msg.content;
+			message.appendChild(author);
+			message.appendChild(date);
+			message.appendChild(content);
+			message_temp.appendChild(message);
+			$('#messages-space').append(message_temp);
+			$('#messages-space').animate({
+				scrollTop: $('#messages-space').get(0).scrollHeight
 			}, 0);
+		});
+		
+		$('#input').keyup(function(event) {
+			if (event.keyCode === 13) {
+				event.preventDefault();
+				$('#send-btn').click();
+			}
 		});
 		
     let currOnlineFriends = $('ul#onlinefriends li')
@@ -106,12 +190,20 @@
     });
     
     updateOnlineFriends();
+    updatePrivateInvites(true);
+    updateGroupInvites(true);
     setInterval(function() {
     	updateOnlineFriends();
+    	updatePrivateInvites(false);
+    	updateGroupInvites(false);
     }, 10000);
 	});
 </script>
 <body>
+	 <div class="alert" id="invite-alert" hidden="hidden">
+	 	<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+	 	You have new chat invites! Check the start chat page to accept or decline the invite.
+	 </div> 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
 		<a class="navbar-brand" href="/homepage">PennBook</a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,36 +235,47 @@
 	</nav>
 	<br>
 	<div class="container">
-		<div>
-			<ul id="messages">
+		<div class="chat-log" id="messages-space">
 				<!-- Display old messages -->
 				<% messages.forEach(function (element, index, array) { %>
-					  <li><%= element.content.S %></li>
-					  <li><%= element.sender.S %></li>
-					  <li><%= element.time_sent.S %></li>
-					  <li> -------------------------------------------------</li>
-				  <% }); %>
-			</ul>
+					  <% if (element.sender.S === username) { %>
+					  		<div class="chat-message right">
+					  			<div class="message">
+					  				<span class="author"> <%= element.sender.S %> </span>
+					  				<span class="date"> <%=element.time_sent.S%> </span>
+					  				<span class="content"> <%=element.content.S%> </span>
+					  			</div>
+					  		</div>
+					  <% } else { %>
+					  		<div class="chat-message left">
+					  			<div class="message">
+					  				<span class="author"> <%= element.sender.S %> </span>
+					  				<span class="date"> <%=element.time_sent.S%> </span>
+					  				<span class="content"> <%=element.content.S%> </span>
+					  			</div>
+					  		</div>
+					  <% } %>
+				<% }); %>
 		</div>
 		<form id="message-form">
 			<div id="form-message">
 				<input class="form-control" id="input" autocomplete="off" placeholder="type a message..."
 				  onfocus="this.placeholder = ''" onblur="this.placeholder = 'type a message...'">
-				<button type="button" id="send-btn" class="btn btn-light" onclick="return sendChat();"><i
-					class="material-icons" style="font-size:26px;">send</i></button>
+				<button type="button" id="send-btn" class="btn btn-primary btn-block" onclick="return sendChat();">Send</i></button>
 			</div>
 		</form>
-		<div id="username">
+		<div id="username" hidden="hidden">
 			<%= username %>
 		</div>
 	</div>
 	<div class="container">
 		<div>
 			<h3>Online friends</h3>
-      <ul id="onlinefriends">
+      <ul id="onlinefriends" style="list-style: none;">
           <% for (friend of online_friends) {%>
               <li id="friend-<%= friend %>">
                   <a href="/profile/<%= friend %>"><%= friend %></a>
+                  <button type="button" id="invite-btn" class="btn btn-light" onclick="return sendGroupChatInvite('<%= friend %>');">Invite to this Chat</button>
               </li>
           <% } %>
       </ul>

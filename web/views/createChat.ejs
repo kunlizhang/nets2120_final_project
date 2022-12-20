@@ -9,6 +9,189 @@
 </head>
 <script>
   var onlineFriendsList = [];
+  var private_invites = [];
+  var group_invites = [];
+  var outgoing_invites = [];
+  var chats = [];
+  
+  function leaveChat(chat_id) {
+  	$.post('/leaveChat', {chat_id: chat_id}, function(data) {
+  		if (data.success) {
+  			window.location.reload();
+  		} else {
+  			alert("An error occurred while trying to leave the chat.");
+  		}
+  	});
+  }
+  
+  function acceptPrivateInvite(sender) {
+  	$.post('/acceptPrivate', {sender: sender}, function(data) {
+  		if (data.success) {
+  			window.location.reload();
+  		} else {
+  			alert("An error occurred while trying to accept the invite.");
+  		}
+  	});
+  }
+  
+  function acceptGroupInvite(chat_id, sender) {
+  	$.post('/acceptGroup', {chat_id: chat_id, sender: sender}, function(data) {
+  		if (data.success) {
+  			window.location.reload();
+  		} else {
+  			alert("An error occurred while trying to accept the invite.");
+  		}
+  	});
+  }
+  
+  function declinePrivateInvite(sender) {
+  	$.post('/deletePrivateInvite', {sender: sender}, function(data) {
+  		if (data.success) {
+  			window.location.reload();
+  		} else {
+  			alert("An error occurred while trying to decline the invite.");
+  		}
+  	});
+  }
+  
+  function declineGroupInvite(chat_id, sender) {
+  	$.post('/deleteGroupInvite', {chat_id: chat_id, sender: sender}, function(data) {
+  		if (data.success) {
+  			window.location.reload();
+  		} else {
+  			alert("An error occurred while trying to decline the invite.");
+  		}
+  	});
+  }
+  
+  function updateOutgoingInvites(initialize) {
+  	$.post('/getOutgoingInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < outgoing_invites.length; i++) {
+	          let invite = outgoing_invites[i];
+	          if (invite.group_chat.S === "false") {
+	          	if (!updatedInvites.some(item => item.user.S == invite.user.S)) {
+	          		outgoing_invites = updatedInvites;
+		            window.location.reload();
+	          	}
+	          } else {
+	          	if (!updatedInvites.some(item => item.chat_id.S == invite.chat_id.S)) {
+	          		outgoing_invites = updatedInvites;
+		            window.location.reload();
+		        }
+	          }
+	        }
+  		} else {
+  			outgoing_invites = data.invites;
+  		}
+  	});
+  }
+  
+  function updateChats(initialize) {
+  	$.post('/getChats', {}, function(data) {
+  		if (!initialize) {
+  			let updatedChats = data.chats;
+  			if (updatedChats.length !== chats.length) {
+  				chats = updatedChats;
+  				window.location.reload();
+  			}
+  		} else {
+  			chats = data.chats;
+  		}
+  	});
+  }
+  
+  function updatePrivateInvites(initialize) {
+  	$.post('/getPrivateInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = private_invites[i];
+	          if (!updatedInvites.some(item => item.sender.S == invite.sender.S)) {
+	            $('#private-' + invite.sender.S).remove();
+	            private_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {
+	          if (!private_invites.some(item => item.sender.S == invite.sender.S)) {                
+	            var newInvite = document.createElement("li");
+	            newInvite.setAttribute("id", "private-" + invite.sender.S);
+	            newInvite.innerText = "Invite to private chat from " + invite.sender.S;
+	            var button = document.createElement("button");
+	      	    var button_text = document.createTextNode("Accept Invite");
+	      	    button.appendChild(button_text);
+	      	    button.setAttribute("id", "invite-btn");
+	      	    button.setAttribute("class", "btn btn-light");
+	      	    button.onclick = function(){acceptPrivateInvite(invite.sender.S)};
+	      	    newInvite.appendChild(button);
+	      	    var button2 = document.createElement("button");
+	      	    var button_text2 = document.createTextNode("Decline Invite");
+	      	    button2.appendChild(button_text2);
+	      	    button2.setAttribute("id", "invite-btn");
+	      	    button2.setAttribute("class", "btn btn-light");
+	      	    button2.onclick = function(){declinePrivateInvite(invite.sender.S)};
+	      	    newInvite.appendChild(button2);
+	            $('#privateinvites').prepend(newInvite);
+	            private_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			private_invites = data.invites;
+  		}
+        
+        if (private_invites.length > 0) {
+          	$('#noprivate').remove();
+        }
+  	});
+  }
+  
+  function updateGroupInvites(initialize) {
+  	$.post('/getGroupInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = group_invites[i];
+	          if (!updatedInvites.some(item => item.chat_id.S == invite.chat_id.S)) {
+	            $('#group-' + invite.chat_id.S).remove();
+	            group_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {    
+	          if (!group_invites.some(item => item.chat_id.S == invite.chat_id.S)) {                
+	            var newInvite = document.createElement("li");
+	            newInvite.setAttribute("id", "group-" + invite.chat_id.S);
+	            newInvite.innerText = "Invite to group chat from " + invite.sender.S;
+	            var button = document.createElement("button");
+	      	    var button_text = document.createTextNode("Accept Invite");
+	      	    button.appendChild(button_text);
+	      	    button.setAttribute("id", "invite-btn");
+	      	    button.setAttribute("class", "btn btn-light");
+	      	    button.onclick = function(){acceptGroupInvite(invite.chat_id.S, invite.sender.S)};
+	      	    newInvite.appendChild(button);
+	      	    var button2 = document.createElement("button");
+	      	    var button_text2 = document.createTextNode("Decline Invite");
+	      	    button2.appendChild(button_text2);
+	      	    button2.setAttribute("id", "invite-btn");
+	      	    button2.setAttribute("class", "btn btn-light");
+	      	    button2.onclick = function(){declineGroupInvite(invite.chat_id.S, invite.sender.S)};
+	      	    newInvite.appendChild(button2);
+	            $('#groupinvites').prepend(newInvite);
+	            group_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			group_invites = data.invites;
+  		}
+        if (group_invites.length > 0) {
+          	$('#nogroup').remove();
+        }
+  	});
+  }
   
   function updateOnlineFriends() {
     $.ajax({
@@ -33,6 +216,13 @@
             text.setAttribute("href", "/profile/" + friend);
             text.innerText = friend;
             newFriend.appendChild(text);
+            var button = document.createElement("button");
+      	    var button_text = document.createTextNode("Invite to New Chat");
+      	    button.appendChild(button_text);
+      	    button.setAttribute("id", "invite-btn");
+      	    button.setAttribute("class", "btn btn-light");
+      	    button.onclick = function(){sendPrivateChatInvite(friend)};
+      	    newFriend.appendChild(button);
             $('#onlinefriends').prepend(newFriend);
             onlineFriendsList.push(friend);
           }
@@ -41,21 +231,44 @@
     });
   }
   
+  function sendPrivateChatInvite(username) {
+		$.post('/sendPrivateInvite', {user: username}, function (data) {
+			if (!data.success) {
+				alert("An error occurred attempting to send the invite.");
+			}
+			if (data.exists) {
+				alert("An invite/chat between you and this user already exists.");
+			} else {
+				window.location.reload();
+			}
+		}); 
+  }
+  
   $(document).ready(function () {
-	    let currOnlineFriends = $('ul#onlinefriends li')
+	    let currOnlineFriends = $('ul#onlinefriends li');
 	    currOnlineFriends.each(function(idx, li) {
 	      onlineFriendsList.push($(li).find('a').text().trim());
 	    });
 	    console.log(onlineFriendsList);
 	    updateOnlineFriends();
+	    updatePrivateInvites(true);
+	    updateGroupInvites(true);
+	    updateOutgoingInvites(true);
+	    updateChats(true);
 	    setInterval(function() {
 	      updateOnlineFriends();
+	      updatePrivateInvites(false);
+	      updateGroupInvites(false);
+	      updateOutgoingInvites(false);
+	      updateChats(false);
 	    }, 10000);
 	  });
 </script>
 <body>
-	<!-- This is a simple example template with a form that has a single input field. 
-		   You'll need something similar for the login page -->
+	<div class="alert" id="invite-alert" hidden="hidden">
+	 	<span class="closebtn" onclick="this.parentElement.hidden='hidden';">&times;</span>
+	 	You have new chat invites! Check the start chat page to accept or decline the invites.
+	 </div> 
 		   
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
 		<a class="navbar-brand" href="/homepage">PennBook</a>
@@ -105,7 +318,51 @@
             <% } %>
         </form>
         <br>
-        <h3>My Chats</h3>
+        <h3 id="outgoingheader"> Outgoing Chat Invites</h3>
+        <% if (outgoing_invites.length === 0) { %>
+        		<p id="nooutgoing"> You currently have no outgoing invites. </p>
+        <% } %>
+        <ul id="outgoinginvites" style="list-style: none;">
+            <% for (invite of outgoing_invites) {%>
+                <li id="outgoing-<%= invite.user.S %>,<%=invite.group_chat.S%>">
+                	<% if (invite.group_chat.S === "false") { %>
+                    	Invite to private chat to <%= invite.user.S %> pending.
+                    <% } else { %>
+                    	Invite to group chat to <%= invite.user.S %> pending.
+                	<% } %>
+                </li>
+            <% } %>
+        </ul>
+        <h3 id="privateheader">Private Chat Invites</h3>
+        <% if (private_invites.length === 0) { %>
+        		<p id="noprivate"> You currently have no private invites. </p>
+        <% } %>
+        <ul id="privateinvites" style="list-style: none;">
+            <% for (invite of private_invites) {%>
+                <li id="private-<%= invite.sender.S %>">
+                    Invite to private chat from <%= invite.sender.S %>
+                    <button type="button" id="invite-btn" class="btn btn-light" onclick="return acceptPrivateInvite('<%= invite.sender.S %>');">Accept Invite</button>
+					<button type="button" id="invite-btn" class="btn btn-light" onclick="return declinePrivateInvite('<%= invite.sender.S %>');">Decline Invite</button>
+                </li>
+            <% } %>
+        </ul>
+        <h3 id="groupheader">Group Chat Invites</h3>
+        <% if (group_invites.length === 0) { %>
+        		<p id="nogroup"> You currently have no group invites. </p>
+        <% } %>
+        <ul id="groupinvites" style="list-style: none;">
+            <% for (invite of group_invites) {%>
+                <li id="group-<%= invite.chat_id.S %>">
+                    Invite to group chat from <%= invite.sender.S %>
+                    <button type="button" id="invite-btn" class="btn btn-light" onclick="return acceptGroupInvite('<%= invite.chat_id.S %>', '<%= invite.sender.S %>');">Accept Invite</button>
+					<button type="button" id="invite-btn" class="btn btn-light" onclick="return declineGroupInvite('<%= invite.chat_id.S %>', '<%= invite.sender.S %>');">Decline Invite</button>
+                </li>
+            <% } %>
+        </ul>
+        <h3 id="chatheader">My Chats</h3>
+        <% if (user_chats.length === 0) { %>
+        		<p id="nochats"> You currently have no active chats. </p>
+        <% } %>
         <table style="width:100%">
           <% user_chats.forEach(function (element, index, array) { %>
               <tr>
@@ -114,15 +371,17 @@
               		<%=chat_users_list[index][i]%>
               		<% if (i < chat_users_list[index].length - 1) {%>,<% } %>
               	<% } %>
+              	<button type="button" id="leave-btn" class="btn btn-light" onclick="return leaveChat('<%= element.chat_id.S %>');">Leave Chat</button>
               </td>
               </tr>
           <% }); %>
         </table>
         <h3>Online friends</h3>
-        <ul id="onlinefriends">
+        <ul id="onlinefriends" style="list-style: none;">
             <% for (friend of online_friends) {%>
                 <li id="friend-<%= friend %>">
                     <a href="/profile/<%= friend %>"><%= friend %></a>
+                    <button type="button" id="invite-btn" class="btn btn-light" onclick="return sendPrivateChatInvite('<%= friend %>');">Invite to New Chat</button>
                 </li>
             <% } %>
         </ul>

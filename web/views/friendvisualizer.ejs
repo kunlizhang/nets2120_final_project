@@ -13,7 +13,70 @@
   <script language="javascript" type="text/javascript" src="/js/jit.js"></script>
   <script language="javascript" type="text/javascript" src="/js/friendvisualizer.js"></script>
 </head>
+<script>
+	var private_invites = [];
+	var group_invites = [];
+	
+	function updatePrivateInvites(initialize) {
+  	$.post('/getPrivateInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = private_invites[i];
+	          if (!updatedInvites.some(item => item.sender.S == invite.sender.S)) {
+	            private_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {
+	          if (!private_invites.some(item => item.sender.S == invite.sender.S)) {              
+	            private_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			private_invites = data.invites;
+  		}
+  	});
+  }
+  
+  function updateGroupInvites(initialize) {
+  	$.post('/getGroupInvites', {}, function (data) {
+  		if (!initialize) {
+  			let updatedInvites = data.invites;
+	        for (var i = 0; i < group_invites.length; i++) {
+	          let invite = group_invites[i];
+	          if (!updatedInvites.some(item => item.chat_id.S == invite.chat_id.S)) {
+	            group_invites.splice(i, 1);
+	            i--;
+	          }
+	        }
+	        updatedInvites.forEach(invite => {    
+	          if (!group_invites.some(item => item.chat_id.S == invite.chat_id.S)) {                
+	            group_invites.push(invite);
+	            $('#invite-alert').attr("hidden", false);
+	          }
+	        });	
+  		} else {
+  			group_invites = data.invites;
+  		}
+  	});
+  }
+  
+  $(document).ready(function() {
+    updatePrivateInvites(true);
+    updateGroupInvites(true);
+    setInterval(function() {
+      updatePrivateInvites(false);
+      updateGroupInvites(false);
+    }, 10000);
+  });
+</script>
 <body>
+  <div class="alert" id="invite-alert" hidden="hidden">
+	 	<span class="closebtn" onclick="this.parentElement.hidden='hidden';">&times;</span>
+	 	You have new chat invites! Check the start chat page to accept or decline the invites.
+  </div> 
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/homepage">PennBook</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

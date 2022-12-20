@@ -85,6 +85,10 @@ app.post('/deletePrivateInvite', chatRoutes.delete_private_invite);
 app.post('/acceptGroup', chatRoutes.accept_group_invite);
 app.post('/deleteGroupInvite', chatRoutes.delete_group_invite);
 app.post('/leaveChat', chatRoutes.leave_chat);
+app.post('/getPrivateInvites', chatRoutes.get_private_invites);
+app.post('/getGroupInvites', chatRoutes.get_group_invites);
+app.post('/getOutgoingInvites', chatRoutes.get_outgoing_invites);
+app.post('/getChats', chatRoutes.get_chats);
 app.post('/getOnlineFriends', chatRoutes.get_online_friends);
 
 /**
