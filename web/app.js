@@ -105,5 +105,5 @@ app.post('/unlikeArticle', newsRoutes.unlike_news_article);
 app.get('/friendvisualizer', routes.friend_visualizer);
 app.post('/expandUser', routes.expand_user);
 
-http.listen(8080);
-console.log('Server running on port 8080.')
+http.listen(80);
+console.log('Server running on port 80.')

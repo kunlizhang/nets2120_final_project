@@ -1,4 +1,4 @@
-package edu.upenn.cis.nets2120.g36.local;
+package edu.upenn.cis.nets2120.g36.livy;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,11 +33,19 @@ import edu.upenn.cis.nets2120.storage.SparkConnector;
 import scala.Tuple2;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
-public class NewsRecommendation {
+import org.apache.livy.Job;
+import org.apache.livy.JobContext;
+
+public class NewsRecommendationJob implements Job<Boolean> {
 	/**
-	 * The basic logger
+	 * 
 	 */
-	static Logger logger = LogManager.getLogger(NewsRecommendation.class);
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Parameter for duration of news articles considered
+	 */
+	private int daysHistory = 14;
 
 	/**
 	 * Connection to Apache Spark
@@ -60,8 +66,10 @@ public class NewsRecommendation {
 	JavaPairRDD<Tuple2<String, String>, Tuple2<String, String>> edges; // Schema: (src: (id, type), dest: (id, type))
 	HashMap<String, String> artDates; // dates of articles
 
-	public NewsRecommendation() {
+	public NewsRecommendationJob(int daysHistory) {
 		System.setProperty("file.encoding", "UTF-8");
+
+		this.daysHistory = daysHistory;
 	}
 
 	/**
@@ -71,62 +79,18 @@ public class NewsRecommendation {
 	 * @throws InterruptedException 
 	 */
 	public void initialize() throws IOException, InterruptedException {
-		logger.info("Connecting to Spark...");
+		System.out.println("Connecting to Spark...");
 
 		spark = SparkConnector.getSparkConnection();
 		context = SparkConnector.getSparkContext();
 		
-		logger.debug("Connected!");
-	}
-
-	/**
-	 * Loads graph data from local file
-	 * 
-	 * @param filePath path to local data file
-	 */
-	void loadDataLocal(String filePath) {
-		JavaRDD<String> inputFile = context.textFile(filePath);
-		// read all nodes from in and parse them
-		nodes = inputFile
-			.filter(s -> s.split(" ").length == 2)
-			.map(s -> {
-				String[] split = s.split(" ");
-				return new Tuple2<String, String>(split[1], split[0]);
-			});
-		
-		// add shadow nodes for articles
-		nodes = nodes.union(nodes
-				.filter(t -> t._2.equals("ARTICLE"))
-				.map(t -> new Tuple2<>(t._1, "SHADOW"))
-		);
-
-		// read all edges and parse them
-		edges = inputFile
-			.filter(s -> s.split(" ").length == 3)
-			.mapToPair(s -> {
-				String[] split = s.split(" ");
-				if (split[0].equals("LIKE")) return new Tuple2<>(new Tuple2<>(split[1], "USER"), new Tuple2<>(split[2], "ARTICLE"));
-				else if (split[0].equals("FRIEND")) return new Tuple2<>(new Tuple2<>(split[1], "USER"), new Tuple2<>(split[2], "USER"));
-				else if (split[0].equals("TOPIC")) return new Tuple2<>(new Tuple2<>(split[1], "ARTICLE"), new Tuple2<>(split[2], "CATEGORY"));
-				else if (split[0].equals("SUBSCRIBE")) return new Tuple2<>(new Tuple2<>(split[1], "USER"), new Tuple2<>(split[2], "CATEGORY"));
-				else return new Tuple2<>(new Tuple2<>(split[0], ""), new Tuple2<>(split[1], ""));
-			});
-		
-		// add edges for shadow article nodes
-		edges = edges
-			.union(edges.mapToPair(t -> new Tuple2<>(t._2, t._1))) // all edges should have back edges
-			.union(nodes
-				.filter(t -> t._2.equals("ARTICLE"))
-				.mapToPair(t -> new Tuple2<>(new Tuple2<>(t._1, "SHADOW"), new Tuple2<>(t._1, "ARTICLE")))
-			);
+		System.out.println("Connected!");
 	}
 	
 	/**
 	 * Loads graph data from DynamoDB
-	 * 
-	 * @param daysHistory -1 if consider all days prior to current, x if consider x days before
 	 */
-	void loadDataDynamo(int daysHistory) {
+	void loadDataDynamo() {
 		db = DynamoConnector.getConnection(Config.DYNAMODB_URL);
 		artDates = new HashMap<>();
 				
@@ -330,25 +294,16 @@ public class NewsRecommendation {
 	/**
 	 * Runs adsorption algorithm
 	 * 
-	 * @param localData true if read data from local file specified in config
-	 * @param debug true if want to print out labels every iteration for debugging purposes
-	 * @param daysHistory -1 if consider all days prior to current, x if consider x days before
 	 * @throws DynamoDbException DynamoDB is unhappy with something
 	 * @throws InterruptedException User presses Ctrl-C
 	 */
-	public void run(int daysHistory, boolean localData, boolean debug) throws IOException, InterruptedException {
-		logger.info("Running");
+	public void run() throws IOException, InterruptedException {
+		System.out.println("Running");
 		
-		if (localData) {
-			loadDataLocal(Config.LOCAL_NEWS_DATA_PATH);
-		} else {
-			loadDataDynamo(daysHistory);
-		}
+		loadDataDynamo();
 		
-		if (debug) {
-			nodes.foreach(t -> System.out.println("NODE: " + t));
-			edges.foreach(t -> System.out.println("EDGE: " + t));
-		}
+		nodes.foreach(t -> System.out.println("NODE: " + t));
+		edges.foreach(t -> System.out.println("EDGE: " + t));
 			
 		JavaPairRDD<Tuple2<String, String>, Tuple2<Tuple2<String, String>, Double>> edgeTransferRDD = computeEdgeTransferRDD();
 		
@@ -384,10 +339,6 @@ public class NewsRecommendation {
 			labels = newLabels;
 
 			System.out.println("ITERATION: " + i);
-			
-			if (debug) {
-				labels.foreach(t -> System.out.println(t));
-			}
 		}
 				
 		// Keep only labels on users
@@ -396,58 +347,27 @@ public class NewsRecommendation {
 		System.out.println("RESOLVING");
 		System.out.println("Resolved " + labels.count() + " labels");
 		
-		if (debug) {
-			labels.foreach(t -> System.out.println(t));
-		}
-		
-		if (!localData) {
-			System.out.println("UPLOADING");
-			uploadLabels(labels);
-		}
+		System.out.println("UPLOADING");
+		uploadLabels(labels);
 		
 		System.out.println("FINISHED");
 	}
-
+	
 	/**
 	 * Graceful shutdown
 	 */
 	public void shutdown() {
-		logger.info("Shutting down");
-
-		if (spark != null) spark.close();
+		System.out.println("Shutting down");
 		
 		if (db != null) db.shutdown();
 	}
-
-	public static void main(String[] args) {
-		final NewsRecommendation nr = new NewsRecommendation();
+	
+	@Override
+	public Boolean call(JobContext arg0) throws Exception {
+		initialize();
+		run();
+		shutdown();
 		
-		// Get command line arguments
-		int daysHistory = 14;
-		boolean localData = false;
-		boolean debug = false;
-		
-		for (String arg : args) {
-			if (arg.equals("local")) localData = true;
-			if (arg.equals("debug")) debug = true;
-			try {
-				int parsed = Integer.parseInt(arg);
-				daysHistory = parsed;
-			} catch (NumberFormatException e) { }
-		}
-		
-		try {
-			nr.initialize();
-			
-			nr.run(daysHistory, localData, debug);
-		} catch (final IOException ie) {
-			logger.error("I/O error: ");
-			ie.printStackTrace();
-		} catch (final InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			nr.shutdown();
-		}
+		return true;
 	}
-
 }

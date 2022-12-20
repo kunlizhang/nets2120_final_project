@@ -1,1 +1,1 @@
-mvn exec:java@local -Dexec.args="28"
+mvn exec:java@livy -Dexec.args="28"
