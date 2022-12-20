@@ -301,23 +301,6 @@
 	</nav>
     <br>
     <div class="container">
-        <form action="/makeChat" method="post" class="form">
-            <h3>Create a chat!</h3>
-            <label for="password" class="sr-only">User 2</label>
-            <input type="text" class="form-control" name="user_2" placeholder="Enter username" required>
-            <input type="submit" class="btn btn-primary btn-block" value="Create">		
-            <% if (error == 1) { %>
-                <div class="alert alert-danger" style='margin-top:15px'>
-                  Please make sure all fields are filled.
-                </div>
-            <% } %>
-            <% if (error == 2) { %>
-                <div class="alert alert-danger" style='margin-top:15px'>
-                  Failed to write to database.
-                </div>
-            <% } %>
-        </form>
-        <br>
         <h3 id="outgoingheader"> Outgoing Chat Invites</h3>
         <% if (outgoing_invites.length === 0) { %>
         		<p id="nooutgoing"> You currently have no outgoing invites. </p>
