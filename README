@@ -19,8 +19,27 @@ SEAS login:
 
 Which features did you implement? 
   (list features, or write 'Entire assignment')
-  Entire assignment
-  TODO
+  Entire assignment:
+    User registration
+    Account changes
+    Walls
+    Home page
+    Commenting
+    Search
+    Friends
+    Visualizer
+    Dynamic content
+    Chat
+    Chat invites
+    Persistence
+    Group chat
+    Ordering
+    News feeds
+    Feed updates
+    News recommendation
+    News search
+    Interfacing with Web Application
+    Security & Scalability
   
 
 3. Extra credit claimed:
@@ -50,5 +69,7 @@ Did you collaborate with anyone on this assignment (other than your group member
   
   
 6. Instructions for building and running our project:
+  TODO
+  URLs for external components:
   TODO
 
