@@ -3,54 +3,94 @@ This is the README for group G36's Final Project code - PennBook.
 
 1. Group Members:
 Full name: Alberto Gaytan
-SEAS login: 
+SEAS login: agaytan
 
 Full name: Daniel Xue
-SEAS login: 
+SEAS login: danxue
 
 Full name: Jordan Hochman
 SEAS login: jhawkman
 
 Full name: Kunli Zhang
-SEAS login: 
+SEAS login: kunliz
 
 
 2. Description of features implemented:
 
-Which features did you implement? 
+Which features did you implement?
   (list features, or write 'Entire assignment')
   Entire assignment:
-    User registration
-    Account changes
-    Walls
-    Home page
-    Commenting
-    Search
-    Friends
-    Visualizer
-    Dynamic content
-    Chat
-    Chat invites
-    Persistence
-    Group chat
-    Ordering
-    News feeds
-    Feed updates
-    News recommendation
-    News search
-    Interfacing with Web Application
-    Security & Scalability
-  
-
+	User registration
+	Account changes
+	Walls
+	Home page
+	Commenting
+	Search
+	Friends
+	Visualizer
+	Dynamic content
+	Chat
+	Chat invites
+	Persistence
+	Group chat
+	Ordering
+	News feeds
+	Feed updates
+	News recommendation
+	News search
+	Interfacing with Web Application
+	Security & Scalability
+ 
 3. Extra credit claimed:
 
 Did you complete any extra-credit tasks? If so, which ones?
-  (list extra-credit tasks)
-  TODO
-
+N/A
 
 4. A list of source files included (and short description):
-  TODO
+src/main/java/edu/upenn/cis/
+    config/Config.java (file with parameters such as EMR URL, etc)
+    g36/livy
+        NewsRecommendationJob.java (livy job with adsorption code)
+        NewsRecommendationLivy.java (code to upload livy job to EMR)
+    g36/local
+        NewsRecommendation.java (local version of adsorption code)
+    g36/loader
+        DynamoConnector.java (DynamoDB driver taken from homework)
+        NewsLoader.java (code to read news articles from local dataset and upload to DynamoDB)
+    storage/SparkConnector.java (spark connector taken from homework)
+
+scripts/
+    crontab (cron job on EC2 instance to run adsorption)
+    deployment_setup.sh (makes modifications and builds libraries when deploying to EC2)
+    run_alg.sh (runs adsorption algorithm on EMR)
+
+web/
+   /models
+      chat_database.js: (Database calls for chat functionality
+      database.js (Database routes for user, friends)
+      news_database.js (Database routes for news feed)
+   /public
+      /css
+          search.css (css items for search autocomplete)
+          visualizer.css (visualizer css for the friend visualizer)
+      /js
+          friendvisualizer.js (scripts for the friend visualizer)
+          jit.js (library code)
+          search.js (scripts for autocomplete search)
+   /routes
+      chat_routes.js (Routes for chat functionality)
+   /views
+      chat.ejs (View for the chat page)
+      createChat.ejs (View for the start chat page, the hub for invites and chats)
+      friendvisualizer.ejs (view for friend visualizer page)
+      homepage.ejs (View for the homepage, for posts and comments)
+      login.ejs (View for the login page, for logging in/going to signup page)
+      newsFeed.ejs (View for the news feed)
+      profile.ejs (View for a user profile)
+      searchUsers.ejs (View for the user search page)
+      signup.ejs (View for the signup page)
+      wall.ejs (View for the wall)
+   app.js (entry point)
 
 5. Declaration that all of the code we're submitting was written by us:
 
@@ -66,10 +106,12 @@ Did you copy any code from the Internet, or from classmates?
 Did you collaborate with anyone on this assignment (other than your group members)?
   [ ] Yes
   [X] No
-  
-  
+ 
 6. Instructions for building and running our project:
-  TODO
-  URLs for external components:
-  TODO
 
+To build and compile necessary dependencies for the web project you can use npm install in /web. The web server can be started with node app.js.
+
+To build the Java project, run mvn compile. You can run a local instance version of the adsorption job with mvn exec:java@local -Dexec.args=”local debug”
+
+URLs for external components:
+You can visit our website at http://54.90.99.213 (although this link will die after the AWS accounts are deleted)
